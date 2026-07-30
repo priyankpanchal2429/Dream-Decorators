@@ -160,7 +160,7 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
                     <td className="px-2 py-2 text-center font-semibold text-zinc-400">{idx + 1}</td>
                     <td className="px-3 py-2">
                       <span className="font-bold text-zinc-900 block">{item.description || 'Custom Interior Furniture'}</span>
-                      <span className="text-[7.5px] text-zinc-500 italic">Teakwood / Velvet • 1 Year Warranty</span>
+                      <span className="text-[7.5px] text-zinc-500 italic block">{item.itemNotes || 'Teakwood / Velvet • 1 Year Warranty'}</span>
                     </td>
                     <td className="px-2 py-2 text-center text-zinc-500 font-medium">{item.hsnCode || '94036000'}</td>
                     <td className="px-2 py-2 text-center font-bold text-zinc-800">{qty}</td>
