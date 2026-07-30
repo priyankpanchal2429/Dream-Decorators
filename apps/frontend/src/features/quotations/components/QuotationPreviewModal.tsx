@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
-import { X, Printer, FileCheck } from 'lucide-react';
-import { QuotationPrintDocument } from './QuotationPrintDocument';
+import React, { useState } from 'react';
+import { X, ExternalLink, Copy, Check, MessageSquare, Download, Printer } from 'lucide-react';
+import { QuotationPrintDocument, CopyType } from './QuotationPrintDocument';
 import { QuotationItem } from '../types';
 
 interface QuotationPreviewModalProps {
@@ -38,57 +38,84 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
   grandTotal,
   notes,
 }) => {
+  const [copyType, setCopyType] = useState<CopyType>('Original');
+  const [copied, setCopied] = useState(false);
+
   if (!isOpen) return null;
 
   const handlePrint = () => {
     window.print();
   };
 
+  const handleCopyLink = () => {
+    if (typeof window !== 'undefined') {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleOpenNewTab = () => {
+    if (typeof window !== 'undefined') {
+      window.open(window.location.href, '_blank');
+    }
+  };
+
+  const handleWhatsAppShare = () => {
+    const text = encodeURIComponent(
+      `Hello ${customerName || 'Client'}, here is your Quotation estimate ${quotationNumber} from Dream Decorators for Total ${grandTotal.toLocaleString('en-IN')}.`
+    );
+    window.open(`https://wa.me/?text=${text}`, '_blank');
+  };
+
+  const copyOptions: CopyType[] = ['Original', 'Duplicate', 'Transport', 'Office'];
+
   return (
     <>
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in print:hidden"
       />
 
-      {/* Right Side Slide-Over Drawer - Theme Aware */}
-      <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-3xl glass-panel bg-cardBg border-l border-borderClr shadow-2xl flex flex-col animate-slide-in-right overflow-hidden">
-        {/* Drawer Header Controls */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-borderClr/40 bg-cardBg/90 backdrop-blur-md shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary">
-              <FileCheck className="h-5 w-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-txtPrimary">A4 Quotation Document Preview</h3>
-              <p className="text-[10px] text-txtSecondary mt-0.5">
-                Exact print & PDF sheet format for {quotationNumber}
-              </p>
-            </div>
-          </div>
+      {/* Right Side Slide-Over Drawer - Reference UI Style */}
+      <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-4xl glass-panel bg-cardBg border-l border-borderClr shadow-2xl flex flex-col animate-slide-in-right overflow-hidden print:w-full print:max-w-none print:static print:bg-white print:border-none print:shadow-none">
+        
+        {/* TOP HEADER CONTROL BAR (Reference UI) */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-borderClr/40 bg-cardBg/90 backdrop-blur-md shrink-0 print:hidden">
+          <h3 className="text-base font-extrabold text-txtPrimary tracking-tight">
+            Print / View Document
+          </h3>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
-              onClick={handlePrint}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs transition-all shadow-md shadow-primary/20 hover:scale-[1.02] active:scale-[0.98]"
+              onClick={handleOpenNewTab}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-400/90 hover:bg-cyan-500 text-white font-bold text-xs shadow-xs transition-all"
             >
-              <Printer className="h-4 w-4" />
-              Save PDF / Print
+              <ExternalLink className="h-3.5 w-3.5" />
+              New Tab
             </button>
+
+            <button
+              onClick={handleCopyLink}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-400/90 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition-all"
+            >
+              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? 'Copied!' : 'Copy Link'}
+            </button>
+
             <button
               onClick={onClose}
-              className="p-2 rounded-xl bg-hoverBg text-txtSecondary hover:text-txtPrimary transition-colors"
+              className="p-1.5 rounded-lg bg-hoverBg text-txtSecondary hover:text-txtPrimary transition-colors ml-2"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* Fit-to-screen A4 Canvas (Theme-Aware Neutral Background) */}
-        <div className="flex-1 overflow-hidden p-3 sm:p-5 bg-hoverBg/40 flex items-center justify-center relative">
-          {/* A4 Paper Sheet Wrapper */}
-          <div className="transform scale-[0.62] sm:scale-[0.7] md:scale-[0.76] xl:scale-[0.8] origin-center shadow-2xl transition-transform rounded-md overflow-hidden ring-1 ring-black/10">
+        {/* CENTER DOCUMENT CANVAS FRAME */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-900/60 flex justify-center print:p-0 print:bg-white">
+          <div className="w-full max-w-[210mm] shadow-2xl transition-transform rounded-sm overflow-hidden print:shadow-none print:w-full">
             <QuotationPrintDocument
               quotationNumber={quotationNumber}
               issueDate={issueDate}
@@ -102,9 +129,73 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
               discountAmount={discountAmount}
               grandTotal={grandTotal}
               notes={notes}
+              copyType={copyType}
             />
           </div>
         </div>
+
+        {/* BOTTOM ACTION & COPY TYPE FOOTER BAR (Reference UI) */}
+        <div className="border-t border-borderClr/40 bg-cardBg/95 backdrop-blur-md p-4 space-y-3 shrink-0 print:hidden">
+          {/* Copy Type Selector Pills */}
+          <div className="flex items-center justify-end gap-6 text-xs font-semibold text-txtPrimary px-2">
+            {copyOptions.map((opt) => (
+              <label key={opt} className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="radio"
+                  name="copyType"
+                  value={opt}
+                  checked={copyType === opt}
+                  onChange={() => setCopyType(opt)}
+                  className="h-4 w-4 text-emerald-500 focus:ring-emerald-400 accent-emerald-500 cursor-pointer"
+                />
+                <span className={copyType === opt ? 'font-black text-txtPrimary' : 'text-txtSecondary'}>
+                  {opt}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          {/* Action Buttons Row (No Email as requested) */}
+          <div className="flex items-center justify-between gap-3 pt-1">
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-hoverBg border border-borderClr/50 text-txtPrimary text-xs font-bold transition-colors hover:bg-hoverBg/80"
+            >
+              <X className="h-4 w-4" />
+              Close
+            </button>
+
+            <div className="flex items-center gap-2.5">
+              {/* WhatsApp */}
+              <button
+                onClick={handleWhatsAppShare}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Whatsapp
+              </button>
+
+              {/* Download */}
+              <button
+                onClick={handlePrint}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-zinc-900 font-extrabold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Download className="h-4 w-4" />
+                Download
+              </button>
+
+              {/* Print */}
+              <button
+                onClick={handlePrint}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Printer className="h-4 w-4" />
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </>
   );
