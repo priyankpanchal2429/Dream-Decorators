@@ -245,56 +245,41 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
             </tbody>
           </table>
         </div>
-
-        {/* Terms & Bank Details Footer Grid */}
-        <div className="grid grid-cols-12 gap-4 p-3 bg-zinc-50/80 rounded-lg border border-zinc-200 text-[8.5px] my-3">
-          {/* Terms & Conditions - 7 cols */}
-          <div className="col-span-7 space-y-0.5">
-            <span className="font-bold text-zinc-800 uppercase tracking-wider block border-b border-zinc-200 pb-0.5">
-              Terms & Conditions:
-            </span>
-            <ol className="list-decimal pl-3 space-y-0.5 text-zinc-600 font-medium">
-              <li>Jurisdiction: Ahmedabad, Gujarat.</li>
-              <li>Delivery: 3-4 weeks from advance receipt.</li>
-              <li>Payment: 50% advance, 50% prior to dispatch.</li>
-              <li>Cancellation: 20% of advance is non-refundable.</li>
-            </ol>
-          </div>
-
-          {/* Bank Details & QR - 5 cols */}
-          <div className="col-span-5 flex justify-between items-start border-l border-zinc-200 pl-3">
-            <div className="space-y-0.5">
-              <span className="font-bold text-zinc-800 uppercase tracking-wider block border-b border-zinc-200 pb-0.5">
-                Bank Details
-              </span>
-              <p><span className="font-medium text-zinc-500">Bank:</span> Bank of Baroda</p>
-              <p><span className="font-medium text-zinc-500">Branch:</span> Satellite Ahmedabad</p>
-              <p><span className="font-medium text-zinc-500">Acc Name:</span> Dream Decorators</p>
-              <p><span className="font-medium text-zinc-500">Acc No:</span> 39590200000512</p>
-              <p><span className="font-medium text-zinc-500">IFSC:</span> BARB0SATELL</p>
-            </div>
-
-            {/* UPI QR Box */}
-            <div className="p-1 bg-white border border-zinc-200 rounded flex flex-col items-center">
-              <QrCode className="h-8 w-8 text-zinc-800" />
-              <span className="text-[6.5px] font-bold text-zinc-400 mt-0.5">Scan to Pay</span>
-            </div>
-          </div>
-        </div>
       </div>
 
-      {/* Authorized Signature Footer */}
-      <div className="pt-3 border-t border-zinc-200 flex justify-between items-end text-[8.5px] mt-auto">
-        <div>
-          <p className="font-medium text-zinc-400 uppercase tracking-wider">Authorized Contact</p>
-          <p className="font-bold text-zinc-800 mt-0.5">info@dreamdecorators.com • +91 98765 43210</p>
+      {/* Terms & Bank Details Footer Grid - Moved to Very End of Page */}
+      <div className="grid grid-cols-12 gap-4 p-3 bg-zinc-50/80 rounded-lg border border-zinc-200 text-[8.5px] mt-auto pt-3 border-t border-zinc-300">
+        {/* Terms & Conditions - 7 cols */}
+        <div className="col-span-7 space-y-0.5">
+          <span className="font-bold text-zinc-800 uppercase tracking-wider block border-b border-zinc-200 pb-0.5">
+            Terms & Conditions:
+          </span>
+          <ol className="list-decimal pl-3 space-y-0.5 text-zinc-600 font-medium">
+            <li>Jurisdiction: Ahmedabad, Gujarat.</li>
+            <li>Delivery: 3-4 weeks from advance receipt.</li>
+            <li>Payment: 50% advance, 50% prior to dispatch.</li>
+            <li>Cancellation: 20% of advance is non-refundable.</li>
+          </ol>
         </div>
 
-        <div className="text-center">
-          <div className="w-32 border-b border-zinc-400 mb-0.5"></div>
-          <p className="font-bold text-zinc-600 uppercase tracking-widest text-[8px]">
-            Authorized Signature
-          </p>
+        {/* Bank Details & QR - 5 cols */}
+        <div className="col-span-5 flex justify-between items-start border-l border-zinc-200 pl-3">
+          <div className="space-y-0.5">
+            <span className="font-bold text-zinc-800 uppercase tracking-wider block border-b border-zinc-200 pb-0.5">
+              Bank Details
+            </span>
+            <p><span className="font-medium text-zinc-500">Bank:</span> Bank of Baroda</p>
+            <p><span className="font-medium text-zinc-500">Branch:</span> Satellite Ahmedabad</p>
+            <p><span className="font-medium text-zinc-500">Acc Name:</span> Dream Decorators</p>
+            <p><span className="font-medium text-zinc-500">Acc No:</span> 39590200000512</p>
+            <p><span className="font-medium text-zinc-500">IFSC:</span> BARB0SATELL</p>
+          </div>
+
+          {/* UPI QR Box */}
+          <div className="p-1 bg-white border border-zinc-200 rounded flex flex-col items-center">
+            <QrCode className="h-8 w-8 text-zinc-800" />
+            <span className="text-[6.5px] font-bold text-zinc-400 mt-0.5">Scan to Pay</span>
+          </div>
         </div>
       </div>
     </div>
