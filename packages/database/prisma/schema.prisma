@@ -1,0 +1,482 @@
+// Dream Decorators ERP - Enterprise PostgreSQL Schema (Prisma ORM)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 1. GLOBAL ENUMS
+// ==========================================
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+  SALES_EXECUTIVE
+  INVENTORY_MANAGER
+  ACCOUNTANT
+}
+
+enum PartyType {
+  CUSTOMER
+  VENDOR
+  BOTH
+}
+
+enum ProductCategory {
+  WINDOW_CURTAINS
+  WINDOW_BLINDS
+  WALLPAPERS
+  MATTRESSES
+  CARPETS
+  SOFAS
+  ACCESSORIES
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PARTIALLY_FULFILLED
+  FULFILLED
+  CANCELLED
+  REJECTED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMode {
+  CASH
+  BANK_TRANSFER
+  CHEQUE
+  CREDIT_CARD
+  UPI
+}
+
+enum StockMovementType {
+  INWARD_PURCHASE
+  OUTWARD_SALES
+  TRANSFER_IN
+  TRANSFER_OUT
+  ADJUSTMENT_ADD
+  ADJUSTMENT_REMOVE
+  RETURN_CUSTOMER
+  RETURN_VENDOR
+}
+
+// ==========================================
+// 2. SYSTEM & ORGANIZATION MODULE
+// ==========================================
+
+model FinancialYear {
+  id          String   @id @default(uuid())
+  code        String   @unique // e.g. "FY2026-27"
+  startDate   DateTime @db.Date
+  endDate     DateTime @db.Date
+  isClosed    Boolean  @default(false)
+  isCurrent   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  quotations       Quotation[]
+  salesInvoices    SalesInvoice[]
+  purchaseInvoices PurchaseInvoice[]
+  deliveryChallans DeliveryChallan[]
+  payments         Payment[]
+
+  @@map("financial_years")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  firstName  String
+  lastName   String
+  role       UserRole @default(SALES_EXECUTIVE)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  createdQuotations       Quotation[]       @relation("CreatedByQuotation")
+  createdSalesInvoices    SalesInvoice[]    @relation("CreatedBySalesInvoice")
+  createdPurchaseInvoices PurchaseInvoice[] @relation("CreatedByPurchaseInvoice")
+  createdDeliveryChallans DeliveryChallan[] @relation("CreatedByDeliveryChallan")
+  createdPayments         Payment[]         @relation("CreatedByPayment")
+
+  @@map("users")
+}
+
+// ==========================================
+// 3. PARTY MODULE (CUSTOMERS & VENDORS)
+// ==========================================
+
+model Party {
+  id             String    @id @default(uuid())
+  code           String    @unique // e.g. "CUST-001" or "VEND-001"
+  name           String
+  companyName    String?
+  type           PartyType
+  email          String?
+  phone          String
+  gstin          String?
+  pan            String?
+  creditLimit    Decimal   @default(0.00) @db.Decimal(14, 2)
+  openingBalance Decimal   @default(0.00) @db.Decimal(14, 2)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  addresses        Address[]
+  quotations       Quotation[]
+  salesInvoices    SalesInvoice[]
+  purchaseInvoices PurchaseInvoice[]
+  deliveryChallans DeliveryChallan[]
+  payments         Payment[]
+
+  @@index([type, isActive])
+  @@index([phone])
+  @@map("parties")
+}
+
+model Address {
+  id           String   @id @default(uuid())
+  partyId      String
+  addressType  String   // "BILLING", "SHIPPING"
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  pincode      String
+  country      String   @default("India")
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  party Party @relation(fields: [partyId], references: [id], onDelete: Cascade)
+
+  @@index([partyId])
+  @@map("addresses")
+}
+
+// ==========================================
+// 4. PRODUCT & INVENTORY MODULE
+// ==========================================
+
+model Product {
+  id          String          @id @default(uuid())
+  sku         String          @unique
+  name        String
+  category    ProductCategory
+  description String?
+  hsnCode     String?
+  unitOfMeasure String        // "SQ_FT", "METERS", "PIECES", "ROLLS", "SETS"
+  taxRatePercent Decimal      @default(18.00) @db.Decimal(5, 2)
+  purchasePrice Decimal       @default(0.00) @db.Decimal(14, 2)
+  sellingPrice  Decimal       @default(0.00) @db.Decimal(14, 2)
+  minStockLevel Int           @default(5)
+  isActive    Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  inventoryStocks       InventoryStock[]
+  stockMovements        StockMovement[]
+  quotationItems        QuotationItem[]
+  salesInvoiceItems     SalesInvoiceItem[]
+  purchaseInvoiceItems  PurchaseInvoiceItem[]
+  deliveryChallanItems  DeliveryChallanItem[]
+
+  @@index([category, isActive])
+  @@map("products")
+}
+
+model Warehouse {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  name      String
+  location  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  inventoryStocks      InventoryStock[]
+  stockMovements       StockMovement[]
+  deliveryChallans     DeliveryChallan[]
+
+  @@map("warehouses")
+}
+
+model InventoryStock {
+  id          String   @id @default(uuid())
+  productId   String
+  warehouseId String
+  quantity    Decimal  @default(0.00) @db.Decimal(14, 2)
+  updatedAt   DateTime @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@unique([productId, warehouseId])
+  @@map("inventory_stocks")
+}
+
+model StockMovement {
+  id            String            @id @default(uuid())
+  productId     String
+  warehouseId   String
+  movementType  StockMovementType
+  quantity      Decimal           @db.Decimal(14, 2)
+  referenceNo   String?           // Invoice or Challan ID
+  remarks       String?
+  createdAt     DateTime          @default(now())
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+
+  @@index([productId, warehouseId])
+  @@index([movementType, createdAt])
+  @@map("stock_movements")
+}
+
+// ==========================================
+// 5. SALES & QUOTATION MODULE
+// ==========================================
+
+model Quotation {
+  id              String         @id @default(uuid())
+  quotationNumber String         @unique // e.g. "QT-2026-0001"
+  financialYearId String
+  partyId         String
+  createdById     String
+  date            DateTime       @db.Date
+  validUntil      DateTime       @db.Date
+  status          DocumentStatus @default(DRAFT)
+  subTotal        Decimal        @default(0.00) @db.Decimal(14, 2)
+  taxAmount       Decimal        @default(0.00) @db.Decimal(14, 2)
+  discountAmount  Decimal        @default(0.00) @db.Decimal(14, 2)
+  grandTotal      Decimal        @default(0.00) @db.Decimal(14, 2)
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  financialYear FinancialYear   @relation(fields: [financialYearId], references: [id])
+  party         Party           @relation(fields: [partyId], references: [id])
+  createdBy     User            @relation("CreatedByQuotation", fields: [createdById], references: [id])
+  items         QuotationItem[]
+  salesInvoices SalesInvoice[]
+
+  @@index([financialYearId, status])
+  @@index([partyId])
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id          String  @id @default(uuid())
+  quotationId String
+  productId   String
+  description String?
+  quantity    Decimal @db.Decimal(14, 2)
+  unitPrice   Decimal @db.Decimal(14, 2)
+  taxRate     Decimal @db.Decimal(5, 2)
+  taxAmount   Decimal @db.Decimal(14, 2)
+  totalPrice  Decimal @db.Decimal(14, 2)
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@index([quotationId])
+  @@map("quotation_items")
+}
+
+model SalesInvoice {
+  id              String         @id @default(uuid())
+  invoiceNumber   String         @unique // e.g. "INV-2026-0001"
+  financialYearId String
+  partyId         String
+  quotationId     String?
+  createdById     String
+  date            DateTime       @db.Date
+  dueDate         DateTime       @db.Date
+  status          DocumentStatus @default(APPROVED)
+  paymentStatus   PaymentStatus  @default(UNPAID)
+  subTotal        Decimal        @default(0.00) @db.Decimal(14, 2)
+  taxAmount       Decimal        @default(0.00) @db.Decimal(14, 2)
+  discountAmount  Decimal        @default(0.00) @db.Decimal(14, 2)
+  grandTotal      Decimal        @default(0.00) @db.Decimal(14, 2)
+  paidAmount      Decimal        @default(0.00) @db.Decimal(14, 2)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  financialYear    FinancialYear        @relation(fields: [financialYearId], references: [id])
+  party            Party                @relation(fields: [partyId], references: [id])
+  quotation        Quotation?           @relation(fields: [quotationId], references: [id])
+  createdBy        User                 @relation("CreatedBySalesInvoice", fields: [createdById], references: [id])
+  items            SalesInvoiceItem[]
+  deliveryChallans DeliveryChallan[]
+  paymentItems     PaymentAllocation[]
+
+  @@index([financialYearId, paymentStatus])
+  @@index([partyId])
+  @@map("sales_invoices")
+}
+
+model SalesInvoiceItem {
+  id             String  @id @default(uuid())
+  salesInvoiceId String
+  productId      String
+  description    String?
+  quantity       Decimal @db.Decimal(14, 2)
+  unitPrice      Decimal @db.Decimal(14, 2)
+  taxRate        Decimal @db.Decimal(5, 2)
+  taxAmount      Decimal @db.Decimal(14, 2)
+  totalPrice     Decimal @db.Decimal(14, 2)
+
+  salesInvoice SalesInvoice @relation(fields: [salesInvoiceId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id])
+
+  @@index([salesInvoiceId])
+  @@map("sales_invoice_items")
+}
+
+// ==========================================
+// 6. DELIVERY CHALLAN MODULE
+// ==========================================
+
+model DeliveryChallan {
+  id              String         @id @default(uuid())
+  challanNumber   String         @unique // e.g. "DC-2026-0001"
+  financialYearId String
+  partyId         String
+  salesInvoiceId  String?
+  warehouseId     String
+  createdById     String
+  dispatchDate    DateTime       @db.Date
+  status          DocumentStatus @default(APPROVED)
+  remarks         String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  financialYear FinancialYear         @relation(fields: [financialYearId], references: [id])
+  party         Party                 @relation(fields: [partyId], references: [id])
+  salesInvoice  SalesInvoice?         @relation(fields: [salesInvoiceId], references: [id])
+  warehouse     Warehouse             @relation(fields: [warehouseId], references: [id])
+  createdBy     User                  @relation("CreatedByDeliveryChallan", fields: [createdById], references: [id])
+  items         DeliveryChallanItem[]
+
+  @@index([financialYearId, partyId])
+  @@map("delivery_challans")
+}
+
+model DeliveryChallanItem {
+  id                String  @id @default(uuid())
+  deliveryChallanId String
+  productId         String
+  quantity          Decimal @db.Decimal(14, 2)
+
+  deliveryChallan DeliveryChallan @relation(fields: [deliveryChallanId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id])
+
+  @@index([deliveryChallanId])
+  @@map("delivery_challan_items")
+}
+
+// ==========================================
+// 7. PURCHASES MODULE
+// ==========================================
+
+model PurchaseInvoice {
+  id              String         @id @default(uuid())
+  invoiceNumber   String         @unique // e.g. "PINV-2026-0001"
+  vendorBillNo    String?
+  financialYearId String
+  partyId         String
+  createdById     String
+  date            DateTime       @db.Date
+  dueDate         DateTime       @db.Date
+  status          DocumentStatus @default(APPROVED)
+  paymentStatus   PaymentStatus  @default(UNPAID)
+  subTotal        Decimal        @default(0.00) @db.Decimal(14, 2)
+  taxAmount       Decimal        @default(0.00) @db.Decimal(14, 2)
+  discountAmount  Decimal        @default(0.00) @db.Decimal(14, 2)
+  grandTotal      Decimal        @default(0.00) @db.Decimal(14, 2)
+  paidAmount      Decimal        @default(0.00) @db.Decimal(14, 2)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  financialYear FinancialYear         @relation(fields: [financialYearId], references: [id])
+  party         Party                 @relation(fields: [partyId], references: [id])
+  createdBy     User                  @relation("CreatedByPurchaseInvoice", fields: [createdById], references: [id])
+  items         PurchaseInvoiceItem[]
+  paymentItems  PaymentAllocation[]
+
+  @@index([financialYearId, paymentStatus])
+  @@index([partyId])
+  @@map("purchase_invoices")
+}
+
+model PurchaseInvoiceItem {
+  id                String  @id @default(uuid())
+  purchaseInvoiceId String
+  productId         String
+  quantity          Decimal @db.Decimal(14, 2)
+  unitPrice         Decimal @db.Decimal(14, 2)
+  taxRate           Decimal @db.Decimal(5, 2)
+  taxAmount         Decimal @db.Decimal(14, 2)
+  totalPrice        Decimal @db.Decimal(14, 2)
+
+  purchaseInvoice PurchaseInvoice @relation(fields: [purchaseInvoiceId], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [productId], references: [id])
+
+  @@index([purchaseInvoiceId])
+  @@map("purchase_invoice_items")
+}
+
+// ==========================================
+// 8. PAYMENTS & ACCOUNTS MODULE
+// ==========================================
+
+model Payment {
+  id              String      @id @default(uuid())
+  paymentNumber   String      @unique // e.g. "PAY-2026-0001"
+  financialYearId String
+  partyId         String
+  createdById     String
+  paymentDate     DateTime    @db.Date
+  paymentMode     PaymentMode
+  amount          Decimal     @db.Decimal(14, 2)
+  referenceNo     String?     // Cheque / UTR number
+  remarks         String?
+  createdAt       DateTime    @default(now())
+
+  financialYear FinancialYear       @relation(fields: [financialYearId], references: [id])
+  party         Party               @relation(fields: [partyId], references: [id])
+  createdBy     User                @relation("CreatedByPayment", fields: [createdById], references: [id])
+  allocations   PaymentAllocation[]
+
+  @@index([financialYearId, partyId])
+  @@map("payments")
+}
+
+model PaymentAllocation {
+  id                String   @id @default(uuid())
+  paymentId         String
+  salesInvoiceId    String?
+  purchaseInvoiceId String?
+  allocatedAmount   Decimal  @db.Decimal(14, 2)
+  createdAt         DateTime @default(now())
+
+  payment         Payment          @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  salesInvoice    SalesInvoice?    @relation(fields: [salesInvoiceId], references: [id])
+  purchaseInvoice PurchaseInvoice? @relation(fields: [purchaseInvoiceId], references: [id])
+
+  @@index([paymentId])
+  @@map("payment_allocations")
+}

@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Surface & Layout */
+    --color-app-bg: #F8FAFC;
+    --color-card-bg: rgba(255, 255, 255, 0.7);
+    --color-border: rgba(229, 231, 235, 0.5);
+    --color-hover-bg: rgba(243, 244, 246, 0.8);
+    --color-table-header-bg: rgba(249, 250, 251, 0.5);
+
+    /* Tailwind Gray Overrides */
+    --color-gray-50: #F9FAFB;
+    --color-gray-100: #F3F4F6;
+    --color-gray-200: #E5E7EB;
+    --color-gray-300: #D1D5DB;
+
+    /* Text */
+    --color-txt-primary: #111827;
+    --color-txt-secondary: #6B7280;
+
+    /* Sidebar */
+    --color-sidebar-bg: #FFFFFF;
+    --color-sidebar-hover: #F3F4F6;
+    --color-sidebar-active-bg: #EEF2FF;
+    --color-sidebar-active-text: #1C47C5;
+  }
+
+  :root.dark {
+    /* Premium Linear-inspired Dark Mode */
+    --color-app-bg: #09090b; /* zinc-950 */
+    --color-card-bg: rgba(24, 24, 27, 0.4); /* zinc-900 with transparency */
+    --color-border: rgba(39, 39, 42, 0.5); /* zinc-800 */
+    
+    --color-hover-bg: rgba(39, 39, 42, 0.4); /* zinc-800 */
+    --color-table-header-bg: rgba(24, 24, 27, 0.6);
+
+    /* Tailwind Gray Overrides (Dark) */
+    --color-gray-50: rgba(24, 24, 27, 0.4);
+    --color-gray-100: rgba(39, 39, 42, 0.4);
+    --color-gray-200: rgba(39, 39, 42, 0.5);
+    --color-gray-300: #3f3f46;
+
+    --color-txt-primary: #FAFAFA; /* zinc-50 */
+    --color-txt-secondary: #A1A1AA; /* zinc-400 */
+
+    --color-sidebar-bg: #09090b;
+    --color-sidebar-hover: #18181b;
+    --color-sidebar-active-bg: #27272a;
+    --color-sidebar-active-text: #FAFAFA;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply backdrop-blur-xl bg-cardBg border border-borderClr shadow-sm;
+  }
+  .dark .glass-panel {
+    @apply shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)];
+  }
+  .bg-dashboard-gradient {
+    background: radial-gradient(circle at top right, rgba(28, 71, 197, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(28, 71, 197, 0.03) 0%, transparent 40%);
+  }
+  .dark .bg-dashboard-gradient {
+    background: radial-gradient(circle at top right, rgba(28, 71, 197, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at bottom left, rgba(28, 71, 197, 0.1) 0%, transparent 40%);
+  }
+}
+
+body {
+  background-color: var(--color-app-bg);
+  color: var(--color-txt-primary);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Hide everything on the page except elements marked .printable-area */
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable-area, .printable-area * {
+    visibility: visible !important;
+  }
+
+  .printable-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  /* Force clean page breaks */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm;
+  }
+}
+
