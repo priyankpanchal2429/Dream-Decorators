@@ -78,44 +78,49 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in print:hidden"
       />
 
-      {/* Right Side Slide-Over Drawer - Reference UI Style */}
+      {/* Right Side Slide-Over Drawer - Design System Parity */}
       <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-4xl glass-panel bg-cardBg border-l border-borderClr shadow-2xl flex flex-col animate-slide-in-right overflow-hidden print:w-full print:max-w-none print:static print:bg-white print:border-none print:shadow-none">
         
-        {/* TOP HEADER CONTROL BAR (Reference UI) */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-borderClr/40 bg-cardBg/90 backdrop-blur-md shrink-0 print:hidden">
-          <h3 className="text-base font-extrabold text-txtPrimary tracking-tight">
-            Print / View Document
-          </h3>
+        {/* TOP HEADER CONTROL BAR */}
+        <div className="flex items-center justify-between px-6 py-3.5 border-b border-borderClr/40 bg-cardBg/90 backdrop-blur-md shrink-0 print:hidden">
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-extrabold text-txtPrimary tracking-tight">
+              Print / View Document
+            </h3>
+            <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+              A4 Sheet Preview
+            </span>
+          </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleOpenNewTab}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-400/90 hover:bg-cyan-500 text-white font-bold text-xs shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-hoverBg hover:bg-hoverBg/80 border border-borderClr/40 text-txtPrimary font-bold text-xs transition-all shadow-xs"
             >
-              <ExternalLink className="h-3.5 w-3.5" />
+              <ExternalLink className="h-3.5 w-3.5 text-primary" />
               New Tab
             </button>
 
             <button
               onClick={handleCopyLink}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-400/90 hover:bg-sky-500 text-white font-bold text-xs shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-hoverBg hover:bg-hoverBg/80 border border-borderClr/40 text-txtPrimary font-bold text-xs transition-all shadow-xs"
             >
-              {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5 text-txtSecondary" />}
               {copied ? 'Copied!' : 'Copy Link'}
             </button>
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg bg-hoverBg text-txtSecondary hover:text-txtPrimary transition-colors ml-2"
+              className="p-2 rounded-xl bg-hoverBg text-txtSecondary hover:text-txtPrimary transition-colors ml-1"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* CENTER DOCUMENT CANVAS FRAME */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-zinc-900/60 flex justify-center print:p-0 print:bg-white">
-          <div className="w-full max-w-[210mm] shadow-2xl transition-transform rounded-sm overflow-hidden print:shadow-none print:w-full">
+        {/* CENTER DOCUMENT CANVAS FRAME - NATIVE VERTICAL SCROLLING ENABLED */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-appBg/60 flex justify-center print:p-0 print:bg-white">
+          <div className="shadow-2xl rounded-sm transition-transform print:shadow-none shrink-0">
             <QuotationPrintDocument
               quotationNumber={quotationNumber}
               issueDate={issueDate}
@@ -134,32 +139,31 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
           </div>
         </div>
 
-        {/* BOTTOM ACTION & COPY TYPE FOOTER BAR (Reference UI) */}
+        {/* BOTTOM ACTION & COPY TYPE FOOTER BAR */}
         <div className="border-t border-borderClr/40 bg-cardBg/95 backdrop-blur-md p-4 space-y-3 shrink-0 print:hidden">
           {/* Copy Type Selector Pills */}
-          <div className="flex items-center justify-end gap-6 text-xs font-semibold text-txtPrimary px-2">
+          <div className="flex items-center justify-end gap-2 text-xs font-semibold text-txtPrimary">
+            <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider mr-2">Copy Type:</span>
             {copyOptions.map((opt) => (
-              <label key={opt} className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="radio"
-                  name="copyType"
-                  value={opt}
-                  checked={copyType === opt}
-                  onChange={() => setCopyType(opt)}
-                  className="h-4 w-4 text-emerald-500 focus:ring-emerald-400 accent-emerald-500 cursor-pointer"
-                />
-                <span className={copyType === opt ? 'font-black text-txtPrimary' : 'text-txtSecondary'}>
-                  {opt}
-                </span>
-              </label>
+              <button
+                key={opt}
+                onClick={() => setCopyType(opt)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
+                  copyType === opt
+                    ? 'bg-primary text-white shadow-xs'
+                    : 'bg-hoverBg text-txtSecondary hover:text-txtPrimary'
+                }`}
+              >
+                {opt}
+              </button>
             ))}
           </div>
 
-          {/* Action Buttons Row (No Email as requested) */}
+          {/* Action Buttons Row */}
           <div className="flex items-center justify-between gap-3 pt-1">
             <button
               onClick={onClose}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-hoverBg border border-borderClr/50 text-txtPrimary text-xs font-bold transition-colors hover:bg-hoverBg/80"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hoverBg border border-borderClr/50 text-txtPrimary text-xs font-bold transition-colors hover:bg-hoverBg/80"
             >
               <X className="h-4 w-4" />
               Close
@@ -169,16 +173,16 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
               {/* WhatsApp */}
               <button
                 onClick={handleWhatsAppShare}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <MessageSquare className="h-4 w-4" />
-                Whatsapp
+                WhatsApp
               </button>
 
               {/* Download */}
               <button
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-zinc-900 font-extrabold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-white font-bold text-xs shadow-xs transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Download className="h-4 w-4" />
                 Download
@@ -187,7 +191,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
               {/* Print */}
               <button
                 onClick={handlePrint}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Printer className="h-4 w-4" />
                 Print
