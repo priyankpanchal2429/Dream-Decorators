@@ -25,7 +25,7 @@ interface QuotationPrintDocumentProps {
   discountAmount: number;
   grandTotal: number;
   notes?: string;
-  copyType?: CopyType;
+  selectedCopyTypes?: CopyType[];
 }
 
 export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
@@ -45,17 +45,42 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
   discountAmount,
   grandTotal,
   notes,
-  copyType = 'Original',
+  selectedCopyTypes = ['Original'],
 }) => {
   const cgstAmount = taxAmount / 2;
   const sgstAmount = taxAmount / 2;
   const totalQty = items.reduce((acc, curr) => acc + curr.quantity, 0);
 
+  const copyOptions: CopyType[] = ['Original', 'Duplicate', 'Transport', 'Office'];
+
   return (
     /* Standard A4 dimensions: 794px width x 1123px height (210mm x 297mm @ 96dpi) */
     <div className="printable-area bg-white text-zinc-800 font-sans w-[794px] min-h-[1123px] p-8 mx-auto flex flex-col justify-between shadow-lg rounded-sm border border-zinc-200 text-[10px] leading-relaxed shrink-0">
       <div>
-        {/* Top Header Banner - Clean, Minimal Branding (No Solid Heavy Black Fills) */}
+        {/* Top Copy Type Checkbox Row (Printed & Displayed on Document) */}
+        <div className="flex items-center justify-end gap-5 pb-2 text-[9px] font-bold text-zinc-600 border-b border-zinc-200 mb-3">
+          {copyOptions.map((opt) => {
+            const isChecked = selectedCopyTypes.includes(opt);
+            return (
+              <div key={opt} className="flex items-center gap-1.5">
+                <div
+                  className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[8px] font-black ${
+                    isChecked
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-zinc-300 bg-white text-transparent'
+                  }`}
+                >
+                  ✓
+                </div>
+                <span className={isChecked ? 'text-zinc-900 font-black' : 'text-zinc-400 font-medium'}>
+                  {opt}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Top Header Banner */}
         <div className="flex justify-between items-start pb-4 border-b border-zinc-300">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 border border-primary/20 text-primary rounded-xl">
@@ -79,9 +104,18 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
               Quotation / Estimate
             </span>
             <p className="text-xs font-black text-zinc-900">{quotationNumber}</p>
-            <span className="inline-block text-[8.5px] font-bold uppercase tracking-widest text-zinc-500 bg-zinc-100 px-2 py-0.5 rounded border border-zinc-200">
-              {copyType} COPY
-            </span>
+            
+            {/* Render Active Copy Type Badge Tags */}
+            <div className="flex flex-wrap items-center justify-end gap-1 pt-0.5">
+              {selectedCopyTypes.map((type) => (
+                <span
+                  key={type}
+                  className="inline-block text-[8px] font-extrabold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded border border-primary/20"
+                >
+                  {type} COPY
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 

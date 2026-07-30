@@ -38,7 +38,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
   grandTotal,
   notes,
 }) => {
-  const [copyType, setCopyType] = useState<CopyType>('Original');
+  const [selectedCopyTypes, setSelectedCopyTypes] = useState<CopyType[]>(['Original']);
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -68,6 +68,17 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
+  const toggleCopyType = (type: CopyType) => {
+    if (selectedCopyTypes.includes(type)) {
+      // Don't allow unchecking if it's the last remaining selection
+      if (selectedCopyTypes.length > 1) {
+        setSelectedCopyTypes(selectedCopyTypes.filter((t) => t !== type));
+      }
+    } else {
+      setSelectedCopyTypes([...selectedCopyTypes, type]);
+    }
+  };
+
   const copyOptions: CopyType[] = ['Original', 'Duplicate', 'Transport', 'Office'];
 
   return (
@@ -78,7 +89,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in print:hidden"
       />
 
-      {/* Right Side Slide-Over Drawer - Design System Parity */}
+      {/* Right Side Slide-Over Drawer */}
       <div className="fixed top-0 right-0 bottom-0 z-50 w-full max-w-4xl glass-panel bg-cardBg border-l border-borderClr shadow-2xl flex flex-col animate-slide-in-right overflow-hidden print:w-full print:max-w-none print:static print:bg-white print:border-none print:shadow-none">
         
         {/* TOP HEADER CONTROL BAR */}
@@ -134,29 +145,42 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
               discountAmount={discountAmount}
               grandTotal={grandTotal}
               notes={notes}
-              copyType={copyType}
+              selectedCopyTypes={selectedCopyTypes}
             />
           </div>
         </div>
 
-        {/* BOTTOM ACTION & COPY TYPE FOOTER BAR */}
+        {/* BOTTOM ACTION & MULTI-SELECT COPY TYPE FOOTER BAR */}
         <div className="border-t border-borderClr/40 bg-cardBg/95 backdrop-blur-md p-4 space-y-3 shrink-0 print:hidden">
-          {/* Copy Type Selector Pills */}
-          <div className="flex items-center justify-end gap-2 text-xs font-semibold text-txtPrimary">
-            <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider mr-2">Copy Type:</span>
-            {copyOptions.map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setCopyType(opt)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all ${
-                  copyType === opt
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'bg-hoverBg text-txtSecondary hover:text-txtPrimary'
-                }`}
-              >
-                {opt}
-              </button>
-            ))}
+          {/* Multi-Select Copy Type Checkbox Options */}
+          <div className="flex items-center justify-end gap-3 text-xs font-semibold text-txtPrimary">
+            <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider mr-1">
+              Select Copy Types:
+            </span>
+            {copyOptions.map((opt) => {
+              const isChecked = selectedCopyTypes.includes(opt);
+              return (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => toggleCopyType(opt)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                    isChecked
+                      ? 'bg-primary/10 border-primary/40 text-primary shadow-xs'
+                      : 'bg-hoverBg border-borderClr/40 text-txtSecondary hover:text-txtPrimary'
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded flex items-center justify-center text-[9px] font-black transition-colors ${
+                      isChecked ? 'bg-primary text-white' : 'border border-borderClr/60 bg-cardBg'
+                    }`}
+                  >
+                    {isChecked ? '✓' : ''}
+                  </div>
+                  <span>{opt}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Action Buttons Row */}
