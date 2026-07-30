@@ -161,7 +161,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
             <thead>
               <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9px] font-bold text-txtSecondary uppercase tracking-wider">
                 <th className="px-2 py-3 text-center w-10">SR.</th>
-                <th className="px-3 py-3 min-w-[260px]">PRODUCT / OTHER CHARGES</th>
+                <th className="px-3 py-3 w-[220px] max-w-[220px]">PRODUCT / OTHER CHARGES</th>
                 <th className="px-2 py-3 text-center w-24">HSN/SAC CODE</th>
                 <th className="px-2 py-3 text-center w-16">QTY.</th>
                 <th className="px-2 py-3 text-center w-20">UOM</th>
@@ -188,7 +188,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* PRODUCT / OTHER CHARGES + EXPANDABLE ITEM NOTES */}
-                    <td className="px-3 py-3 space-y-2 min-w-[260px] align-top">
+                    <td className="px-3 py-3 space-y-2 w-[220px] max-w-[220px] align-top">
                       <input
                         type="text"
                         placeholder="Item Title (e.g. Custom Velvet Curtains)"
