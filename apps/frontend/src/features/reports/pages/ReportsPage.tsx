@@ -7,6 +7,38 @@ import { AppShell } from '@/components/layout/AppShell';
 import { formatINR } from '@/features/dashboard/constants';
 
 export default function ReportsPage() {
+  const handleExportGSTReport = () => {
+    const csvContent = [
+      ['Dream Decorators - GST Tax Return Summary Report (FY 2025-2026)'],
+      ['Generated On', new Date().toLocaleString()],
+      [],
+      ['Metric', 'Amount (INR)'],
+      ['Gross Revenue (Sales)', 4850000],
+      ['Output CGST Collected (9%)', 436500],
+      ['Output SGST Collected (9%)', 436500],
+      ['Total Output GST (GSTR-1)', 873000],
+      ['Input Tax Credit (ITC - Purchases)', 420000],
+      ['Net Payable GST (GSTR-3B)', 453000],
+      [],
+      ['Recent Transaction Breakdown'],
+      ['Invoice #', 'Party Name', 'Taxable Value', 'CGST 9%', 'SGST 9%', 'Total GST', 'Status'],
+      ['INV-2026-881', 'Aarav Sharma', 107305, 9657, 9657, 19315, 'PAID'],
+      ['INV-2026-882', 'Ananya Patel', 411016, 36992, 36992, 73984, 'PARTIAL'],
+      ['INV-2026-883', 'Vikram Mehta', 177966, 16017, 16017, 32034, 'OVERDUE'],
+    ]
+      .map((row) => row.join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Dream_Decorators_GST_Report_FY2026.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <AppShell>
       <div className="min-h-screen bg-dashboard-gradient pb-12">
@@ -29,8 +61,8 @@ export default function ReportsPage() {
             </div>
 
             <button
-              onClick={() => alert('Downloading GST GSTR-1 & GSTR-3B Report...')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={handleExportGSTReport}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Download className="h-4 w-4" />
               Export GST Report

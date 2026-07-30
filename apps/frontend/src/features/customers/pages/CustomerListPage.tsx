@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Search, Plus, UserCheck, TrendingUp, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { Customer } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { CustomerFormModal } from '../components/CustomerFormModal';
 
 export default function CustomerListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [customers] = useState<Customer[]>([
+  const [customers, setCustomers] = useState<Customer[]>([
     {
       id: 'cust-1',
       name: 'Aarav Sharma',
@@ -112,8 +112,8 @@ export default function CustomerListPage() {
             </div>
 
             <button
-              onClick={() => alert('Add Customer Modal feature ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Add New Client
@@ -277,6 +277,31 @@ export default function CustomerListPage() {
           </div>
         </div>
       </div>
+
+      <CustomerFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newCust: Customer = {
+            id: `cust-${Date.now()}`,
+            name: data.customerName || data.name || 'New Client',
+            customerName: data.customerName || data.name || 'New Client',
+            email: data.email || 'client@example.com',
+            phone: data.mobile || data.phone || '+91 90000 00000',
+            mobile: data.mobile || data.phone || '+91 90000 00000',
+            city: data.city || 'Ahmedabad',
+            state: data.state || 'Gujarat',
+            gstin: data.gstNumber || data.gstin || '',
+            totalOrders: 1,
+            totalSpent: 0,
+            outstanding: data.openingBalance || 0,
+            status: 'ACTIVE',
+            lastOrderDate: new Date().toISOString().split('T')[0],
+          };
+          setCustomers((prev) => [newCust, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

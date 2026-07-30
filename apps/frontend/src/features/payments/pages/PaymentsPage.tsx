@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Search, Plus, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { PaymentTransaction } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { RecordPaymentModal } from '../components/RecordPaymentModal';
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [transactions] = useState<PaymentTransaction[]>([
+  const [transactions, setTransactions] = useState<PaymentTransaction[]>([
     {
       id: 'tx-1',
       txnRef: 'TXN-2026-991',
@@ -85,8 +85,8 @@ export default function PaymentsPage() {
             </div>
 
             <button
-              onClick={() => alert('Record Payment Modal ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Record Payment
@@ -211,6 +211,25 @@ export default function PaymentsPage() {
           </div>
         </div>
       </div>
+
+      <RecordPaymentModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newTx: PaymentTransaction = {
+            id: `tx-${Date.now()}`,
+            txnRef: data.txnRef || `TXN-2026-${Math.floor(100 + Math.random() * 900)}`,
+            type: data.type || 'RECEIVED',
+            partyName: data.partyName || 'Client / Vendor',
+            date: data.date || new Date().toISOString().split('T')[0],
+            paymentMode: data.paymentMode || 'UPI',
+            amount: data.amount || 50000,
+            status: 'SUCCESS',
+          };
+          setTransactions((prev) => [newTx, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

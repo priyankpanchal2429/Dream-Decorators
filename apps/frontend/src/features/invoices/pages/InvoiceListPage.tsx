@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Receipt, Search, Plus, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { SalesInvoice } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { InvoiceFormModal } from '../components/InvoiceFormModal';
 
 export default function InvoiceListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [invoices] = useState<SalesInvoice[]>([
+  const [invoices, setInvoices] = useState<SalesInvoice[]>([
     {
       id: 'inv-101',
       invoiceNumber: 'INV-2026-881',
@@ -86,8 +86,8 @@ export default function InvoiceListPage() {
             </div>
 
             <button
-              onClick={() => alert('Create Invoice Modal feature ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Create Sales Invoice
@@ -218,6 +218,27 @@ export default function InvoiceListPage() {
           </div>
         </div>
       </div>
+
+      <InvoiceFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newInv: SalesInvoice = {
+            id: `inv-${Date.now()}`,
+            invoiceNumber: data.invoiceNumber || `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
+            customerName: data.customerName || 'Aarav Sharma',
+            customerPhone: '+91 98765 43210',
+            issueDate: data.issueDate || new Date().toISOString().split('T')[0],
+            dueDate: data.dueDate || '2026-08-15',
+            totalAmount: data.totalAmount || 125000,
+            paidAmount: data.status === 'PAID' ? data.totalAmount || 125000 : 0,
+            balanceDue: data.balanceDue || 0,
+            status: data.status || 'PARTIAL',
+          };
+          setInvoices((prev) => [newInv, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

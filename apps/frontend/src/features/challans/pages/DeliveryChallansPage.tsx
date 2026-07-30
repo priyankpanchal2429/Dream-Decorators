@@ -4,13 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Truck, Search, Plus, CheckCircle2, Clock } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { DeliveryChallan } from '../types';
+import { ChallanFormModal } from '../components/ChallanFormModal';
 
 export default function DeliveryChallansPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [challans] = useState<DeliveryChallan[]>([
+  const [challans, setChallans] = useState<DeliveryChallan[]>([
     {
       id: 'dc-1',
       challanNumber: 'DC-2026-041',
@@ -64,8 +65,8 @@ export default function DeliveryChallansPage() {
             </div>
 
             <button
-              onClick={() => alert('New Delivery Challan Modal ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Create Delivery Challan
@@ -190,6 +191,24 @@ export default function DeliveryChallansPage() {
           </div>
         </div>
       </div>
+
+      <ChallanFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newDc: DeliveryChallan = {
+            id: `dc-${Date.now()}`,
+            challanNumber: data.challanNumber || `DC-2026-${Math.floor(100 + Math.random() * 900)}`,
+            customerName: data.customerName || 'Aarav Sharma',
+            vehicleNumber: data.vehicleNumber || 'GJ-01-AB-1234',
+            dispatchDate: data.dispatchDate || new Date().toISOString().split('T')[0],
+            itemCount: data.itemCount || 5,
+            status: data.status || 'IN_TRANSIT',
+          };
+          setChallans((prev) => [newDc, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

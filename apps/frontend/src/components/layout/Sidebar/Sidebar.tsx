@@ -108,9 +108,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
             );
 
             return isCollapsed ? (
-              <Tooltip key={idx} content={item.title} position="right">
-                {content}
-              </Tooltip>
+              <div key={idx} className="relative group">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'flex items-center justify-center p-2.5 rounded-xl text-xs font-semibold transition-colors',
+                    isActive
+                      ? 'bg-primary text-white shadow-sm'
+                      : 'text-txtSecondary hover:bg-hoverBg hover:text-txtPrimary'
+                  )}
+                >
+                  <span className="shrink-0">{item.icon}</span>
+                </Link>
+                {/* Floating tooltip breaking out of overflow container */}
+                <div className="fixed left-20 z-50 hidden group-hover:flex items-center px-3 py-1.5 bg-neutral-900 text-white font-bold text-xs rounded-xl shadow-xl pointer-events-none whitespace-nowrap border border-white/10">
+                  {item.title}
+                </div>
+              </div>
             ) : (
               content
             );

@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Search, Plus, Truck, CheckCircle2, Clock } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { PurchaseOrder } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { PurchaseFormModal } from '../components/PurchaseFormModal';
 
 export default function PurchaseListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [purchases] = useState<PurchaseOrder[]>([
+  const [purchases, setPurchases] = useState<PurchaseOrder[]>([
     {
       id: 'po-1',
       poNumber: 'PO-2026-104',
@@ -75,8 +75,8 @@ export default function PurchaseListPage() {
             </div>
 
             <button
-              onClick={() => alert('Create Purchase Order Modal ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               New Purchase Order
@@ -205,6 +205,24 @@ export default function PurchaseListPage() {
           </div>
         </div>
       </div>
+
+      <PurchaseFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newPo: PurchaseOrder = {
+            id: `po-${Date.now()}`,
+            poNumber: data.poNumber || `PO-2026-${Math.floor(100 + Math.random() * 900)}`,
+            vendorName: data.vendorName || 'Gujarat Teak Traders',
+            category: data.category || 'Timber & Teakwood',
+            orderDate: data.orderDate || new Date().toISOString().split('T')[0],
+            amount: data.totalAmount || 180000,
+            status: data.status || 'RECEIVED',
+          };
+          setPurchases((prev) => [newPo, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

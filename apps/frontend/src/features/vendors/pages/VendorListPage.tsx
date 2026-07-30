@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Search, Plus, ShoppingBag, CreditCard, Mail, Phone, MapPin } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { Vendor } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { VendorFormModal } from '../components/VendorFormModal';
 
 export default function VendorListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [vendors] = useState<Vendor[]>([
+  const [vendors, setVendors] = useState<Vendor[]>([
     {
       id: 'ven-1',
       name: 'Gujarat Teak Traders',
@@ -89,8 +89,8 @@ export default function VendorListPage() {
             </div>
 
             <button
-              onClick={() => alert('Add Vendor Modal feature ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Add Supplier
@@ -241,6 +241,28 @@ export default function VendorListPage() {
           </div>
         </div>
       </div>
+
+      <VendorFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newVen: Vendor = {
+            id: `ven-${Date.now()}`,
+            name: data.vendorName || data.name || 'New Supplier',
+            category: data.category || 'Timber & Plywood',
+            contactPerson: data.contactPerson || 'Sales Desk',
+            phone: data.phone || '+91 90000 00000',
+            email: data.email || 'supplier@example.com',
+            city: data.city || 'Ahmedabad',
+            gstin: data.gstin || '',
+            totalPurchases: 0,
+            payableBalance: data.payable || 0,
+            status: 'ACTIVE',
+          };
+          setVendors((prev) => [newVen, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }

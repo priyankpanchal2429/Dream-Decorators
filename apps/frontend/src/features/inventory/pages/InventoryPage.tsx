@@ -4,14 +4,14 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Search, Plus, AlertCircle, Layers, TrendingUp } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
-import { InventoryItem } from '../types';
-import { formatINR } from '@/features/dashboard/constants';
+import { InventoryFormModal } from '../components/InventoryFormModal';
 
 export default function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [items] = useState<InventoryItem[]>([
+  const [items, setItems] = useState<InventoryItem[]>([
     {
       id: 'inv-1',
       sku: 'SKU-TK-001',
@@ -100,8 +100,8 @@ export default function InventoryPage() {
             </div>
 
             <button
-              onClick={() => alert('Add Item Modal ready!')}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
             >
               <Plus className="h-4 w-4" />
               Add Stock Item
@@ -239,6 +239,27 @@ export default function InventoryPage() {
           </div>
         </div>
       </div>
+
+      <InventoryFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={(data) => {
+          const newItem: InventoryItem = {
+            id: `inv-${Date.now()}`,
+            sku: data.sku || `SKU-IND-${Math.floor(100 + Math.random() * 900)}`,
+            name: data.name || 'New Stock Item',
+            category: 'Decor Materials',
+            hsnCode: data.hsnCode || '9403',
+            stockQty: data.stockQuantity || 10,
+            uom: data.uom || 'NOS',
+            unitPrice: data.unitPrice || 5000,
+            reorderLevel: 10,
+            status: data.status || 'IN_STOCK',
+          };
+          setItems((prev) => [newItem, ...prev]);
+          setIsModalOpen(false);
+        }}
+      />
     </AppShell>
   );
 }
