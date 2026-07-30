@@ -167,7 +167,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                 <th className="px-2 py-3 text-center w-20">UOM</th>
                 <th className="px-2 py-3 text-right w-24">PRICE (₹)</th>
                 <th className="px-2 py-3 text-right w-20">DISCOUNT</th>
-                <th className="px-2 py-3 text-right w-28">CGST + SGST</th>
+                <th className="pl-6 pr-2 py-3 text-right w-32">CGST + SGST</th>
                 <th className="px-3 py-3 text-right w-32">TOTAL (₹)</th>
                 <th className="px-2 py-3 text-center w-10"></th>
               </tr>
@@ -266,8 +266,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* CGST + SGST - Top Aligned */}
-                    <td className="px-3 py-3 align-top">
+                    {/* CGST + SGST - Shifted Right */}
+                    <td className="pl-6 pr-2 py-3 align-top">
                       <select
                         value={item.taxPercent}
                         onChange={(e) => onUpdateItem(item.id, 'taxPercent', Number(e.target.value))}
