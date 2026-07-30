@@ -2,12 +2,12 @@
 
 import React, { useState } from 'react';
 import { Customer } from '../types';
-import { Modal } from '@/components/ui/Modal';
+import { Drawer } from '@/components/ui/Drawer';
 import { Button } from '@/components/button/Button';
-import { Input, CurrencyInput, GSTInput, PhoneInput, Textarea } from '@/components/input';
+import { Input, CurrencyInput, GSTInput, PhoneInput } from '@/components/input';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { FormGrid, FormSection } from '@/components/form';
-import { Checkbox } from '@/components/check';
+import { Users } from 'lucide-react';
 
 interface CustomerFormModalProps {
   isOpen: boolean;
@@ -54,27 +54,28 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   };
 
   return (
-    <Modal
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? 'Edit Customer' : 'Add New Customer'}
-      description="Create a new customer profile or update existing details."
-      className="max-w-3xl"
+      title={initialData ? 'Edit Customer Profile' : 'Add New Client'}
+      description="Create a new customer profile or update existing accounting details."
+      icon={<Users className="h-5 w-5" />}
+      maxWidth="max-w-xl"
       footer={
         <>
           <Button variant="outline" size="sm" onClick={onClose}>
             Cancel
           </Button>
           <Button variant="primary" size="sm" onClick={handleSubmit}>
-            Save Customer
+            Save Client
           </Button>
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="General Information">
-          <FormGrid cols={3}>
-            <Input label="Customer Name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <FormGrid cols={2}>
+            <Input label="Customer Name *" value={name} onChange={(e) => setName(e.target.value)} required />
             <Input label="Company Name" value={company} onChange={(e) => setCompany(e.target.value)} />
             <Dropdown
               label="Customer Type"
@@ -87,18 +88,18 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 { label: 'Distributor', value: 'DISTRIBUTOR' },
               ]}
             />
-            <PhoneInput label="Mobile Number" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
+            <PhoneInput label="Mobile Number *" value={mobile} onChange={(e) => setMobile(e.target.value)} required />
             <Input label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             <GSTInput label="GSTIN Number" value={gst} onChange={(e) => setGst(e.target.value)} />
           </FormGrid>
         </FormSection>
 
         <FormSection title="Billing & Shipping Address">
-          <FormGrid cols={3}>
-            <Input label="Address Line 1" value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} required />
-            <Input label="City" value={city} onChange={(e) => setCity(e.target.value)} required />
-            <Input label="State" value={state} onChange={(e) => setState(e.target.value)} required />
-            <Input label="PIN Code" value={pincode} onChange={(e) => setPincode(e.target.value)} required />
+          <FormGrid cols={2}>
+            <Input label="Address Line 1 *" value={addressLine1} onChange={(e) => setAddressLine1(e.target.value)} required />
+            <Input label="City *" value={city} onChange={(e) => setCity(e.target.value)} required />
+            <Input label="State *" value={state} onChange={(e) => setState(e.target.value)} required />
+            <Input label="PIN Code *" value={pincode} onChange={(e) => setPincode(e.target.value)} required />
           </FormGrid>
         </FormSection>
 
@@ -116,6 +117,6 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           </FormGrid>
         </FormSection>
       </form>
-    </Modal>
+    </Drawer>
   );
 };
