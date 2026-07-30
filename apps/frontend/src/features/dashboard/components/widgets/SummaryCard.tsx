@@ -45,7 +45,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
       </div>
 
       <p className="text-3xl font-black text-txtPrimary tracking-tight mb-6 relative z-10">
-        {formatINR(data.totalAmount)}
+        {formatINR(data.monthlyAmount ?? data.todayAmount)}
       </p>
 
       <div className="grid grid-cols-2 gap-4 mb-6 relative z-10">

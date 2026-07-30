@@ -59,7 +59,7 @@ export function InvoiceDueWidget({
               const diffTime = dueDate.getTime() - today.getTime();
               const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
               
-              let statusLabel = inv.status;
+              let statusLabel: string = inv.status;
               if (daysLeft < 0) statusLabel = 'OVERDUE';
               else if (daysLeft === 0) statusLabel = 'Due Today';
               else statusLabel = 'Upcoming';

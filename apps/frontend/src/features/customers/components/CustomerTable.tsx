@@ -56,7 +56,7 @@ export const CustomerTable: React.FC<CustomerTableProps> = ({
     {
       header: 'Outstanding',
       cell: (item) => (
-        <span className="font-extrabold text-txtPrimary">{formatINR(item.outstandingAmount)}</span>
+        <span className="font-extrabold text-txtPrimary">{formatINR(item.outstandingAmount ?? item.outstanding ?? 0)}</span>
       ),
     },
     {

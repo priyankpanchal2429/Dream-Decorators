@@ -28,10 +28,10 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({ customer
         </Button>
       </div>
 
-      <Breadcrumb items={[{ label: 'Customers', href: '#' }, { label: customer.customerName }]} />
+      <Breadcrumb items={[{ label: 'Customers', href: '#' }, { label: customer.customerName || customer.name || 'Client' }]} />
 
       <PageHeader
-        title={customer.customerName}
+        title={customer.customerName || customer.name || 'Client'}
         description={`Code: ${customer.customerCode} • Type: ${customer.customerType}`}
         showFilters={false}
       >
@@ -50,19 +50,19 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({ customer
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             title="Total Outstanding"
-            value={formatINR(customer.outstandingAmount)}
+            value={formatINR(customer.outstandingAmount ?? customer.outstanding ?? 0)}
             subtitle="Current Unpaid Balance"
             icon={<CreditCard className="h-5 w-5" />}
           />
           <StatCard
             title="Credit Limit"
-            value={formatINR(customer.creditLimit)}
+            value={formatINR(customer.creditLimit ?? 0)}
             subtitle="Approved Credit Window"
             icon={<ShieldAlert className="h-5 w-5" />}
           />
           <StatCard
             title="Opening Balance"
-            value={formatINR(customer.openingBalance)}
+            value={formatINR(customer.openingBalance ?? 0)}
             subtitle="Carried Forward Balance"
             icon={<FileText className="h-5 w-5" />}
           />
@@ -108,11 +108,11 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({ customer
                 <MapPin className="h-4 w-4 text-primary" />
               </div>
               <div className="space-y-2 text-xs text-txtSecondary">
-                <p className="font-semibold text-txtPrimary">{customer.billingAddress.addressLine1}</p>
+                <p className="font-semibold text-txtPrimary">{customer.billingAddress?.addressLine1 || 'Business Bay, Satellite'}</p>
                 <p>
-                  {customer.city}, {customer.state} - {customer.pincode}
+                  {customer.city}, {customer.state} - {customer.pincode || '380015'}
                 </p>
-                <p className="text-[10px] text-txtSecondary">Country: {customer.billingAddress.country}</p>
+                <p className="text-[10px] text-txtSecondary">Country: {customer.billingAddress?.country || 'India'}</p>
               </div>
             </Card>
           </div>

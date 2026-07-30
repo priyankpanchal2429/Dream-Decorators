@@ -36,15 +36,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
   const navItems = [
     { title: 'Dashboard', href: '/', icon: <LayoutDashboard className="h-5 w-5" /> },
     { title: 'Quotation', href: '/quotations', icon: <FileText className="h-5 w-5" /> },
-    { title: 'Customers', href: '#', icon: <Users className="h-5 w-5" /> },
-    { title: 'Vendors', href: '#', icon: <Building2 className="h-5 w-5" /> },
-    { title: 'Sales Invoice', href: '#', icon: <Receipt className="h-5 w-5" /> },
-    { title: 'Purchase Invoice', href: '#', icon: <ShoppingBag className="h-5 w-5" /> },
-    { title: 'Inventory', href: '#', icon: <Package className="h-5 w-5" /> },
-    { title: 'Payments', href: '#', icon: <CreditCard className="h-5 w-5" /> },
-    { title: 'Delivery Challan', href: '#', icon: <Truck className="h-5 w-5" /> },
-    { title: 'Reports', href: '#', icon: <BarChart3 className="h-5 w-5" /> },
-    { title: 'Settings', href: '#', icon: <Settings className="h-5 w-5" /> },
+    { title: 'Customers', href: '/customers', icon: <Users className="h-5 w-5" /> },
+    { title: 'Vendors', href: '/vendors', icon: <Building2 className="h-5 w-5" /> },
+    { title: 'Sales Invoice', href: '/invoices', icon: <Receipt className="h-5 w-5" /> },
+    { title: 'Purchase Invoice', href: '/purchases', icon: <ShoppingBag className="h-5 w-5" /> },
+    { title: 'Inventory', href: '/inventory', icon: <Package className="h-5 w-5" /> },
+    { title: 'Payments', href: '/payments', icon: <CreditCard className="h-5 w-5" /> },
+    { title: 'Delivery Challan', href: '/delivery-challans', icon: <Truck className="h-5 w-5" /> },
+    { title: 'Reports', href: '/reports', icon: <BarChart3 className="h-5 w-5" /> },
+    { title: 'Settings', href: '/settings', icon: <Settings className="h-5 w-5" /> },
   ];
 
   return (
