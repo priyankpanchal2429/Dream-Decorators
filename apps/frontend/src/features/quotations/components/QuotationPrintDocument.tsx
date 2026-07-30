@@ -139,7 +139,7 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
                 <th className="px-3 py-2 text-center w-8">#</th>
                 <th className="px-3 py-2">Item Description</th>
                 <th className="px-3 py-2 text-center w-16">HSN/SAC</th>
-                <th className="px-3 py-2 text-center w-12">Qty</th>
+                <th className="px-3 py-2 text-center w-16">Qty</th>
                 <th className="px-3 py-2 text-right w-20">Rate (₹)</th>
                 <th className="px-3 py-2 text-right w-14">GST %</th>
                 <th className="px-3 py-2 text-right w-24">Total (₹)</th>
@@ -166,7 +166,7 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
             <tfoot className="bg-zinc-50 font-semibold text-[9px] border-t border-zinc-200">
               <tr>
                 <td colSpan={3} className="px-3 py-1.5 text-right uppercase font-bold text-zinc-500">Total Quantity:</td>
-                <td className="px-3 py-1.5 text-center font-bold text-zinc-900">{totalQty} NOS</td>
+                <td className="px-3 py-1.5 text-center font-bold text-zinc-900 whitespace-nowrap">{totalQty} NOS</td>
                 <td colSpan={3} className="px-3 py-1.5 text-right font-bold text-primary">
                   {formatINR(subtotal)}
                 </td>
