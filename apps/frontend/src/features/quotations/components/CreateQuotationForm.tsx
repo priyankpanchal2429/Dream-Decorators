@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Plus, Trash2, User, Calendar, Hash, FileText } from 'lucide-react';
+import { Plus, Trash2, User, FileText, Hash } from 'lucide-react';
 import { QuotationItem } from '../types';
 
 interface CreateQuotationFormProps {
@@ -45,6 +45,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
   notes,
   setNotes,
 }) => {
+  const uomOptions = ['NOS', 'SQFT', 'MTR', 'PCS', 'SET', 'LOT', 'BOX', 'KG'];
+
   return (
     <div className="space-y-6">
       {/* Client & General Info Card */}
@@ -130,7 +132,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
         </div>
       </div>
 
-      {/* Dynamic Line Items Section */}
+      {/* Line Items & Pricing Table Section (Requested Columns) */}
       <div className="glass-panel p-6 rounded-3xl space-y-5">
         <div className="flex items-center justify-between pb-4 border-b border-borderClr/30">
           <div className="flex items-center gap-3">
@@ -139,11 +141,12 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-txtPrimary">Line Items & Pricing</h3>
-              <p className="text-[10px] text-txtSecondary mt-0.5">Add decor products, interior services, or custom items</p>
+              <p className="text-[10px] text-txtSecondary mt-0.5">Manage products, HSN/SAC codes, UOM, and GST tax calculations</p>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onAddItem}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary hover:text-white text-xs font-bold transition-all shadow-xs"
           >
@@ -152,93 +155,148 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
           </button>
         </div>
 
-        {/* Line Items Table */}
+        {/* 9 Column Table: SR. | PRODUCT / OTHER CHARGES | HSN/SAC CODE | QTY. | UOM | PRICE | DISCOUNT | CGST + SGST | TOTAL */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[650px]">
+          <table className="w-full text-left border-collapse min-w-[950px]">
             <thead>
-              <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9px] font-bold text-txtSecondary uppercase tracking-widest">
-                <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3 text-center w-24">Qty</th>
-                <th className="px-4 py-3 text-right w-36">Unit Price (₹)</th>
-                <th className="px-4 py-3 text-right w-28">GST Tax %</th>
-                <th className="px-4 py-3 text-right w-36">Amount</th>
-                <th className="px-4 py-3 text-center w-16">Action</th>
+              <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9px] font-bold text-txtSecondary uppercase tracking-wider">
+                <th className="px-3 py-3 text-center w-10">SR.</th>
+                <th className="px-3 py-3">PRODUCT / OTHER CHARGES</th>
+                <th className="px-3 py-3 text-center w-28">HSN/SAC CODE</th>
+                <th className="px-3 py-3 text-center w-20">QTY.</th>
+                <th className="px-3 py-3 text-center w-24">UOM</th>
+                <th className="px-3 py-3 text-right w-28">PRICE (₹)</th>
+                <th className="px-3 py-3 text-right w-24">DISCOUNT</th>
+                <th className="px-3 py-3 text-right w-32">CGST + SGST</th>
+                <th className="px-3 py-3 text-right w-32">TOTAL (₹)</th>
+                <th className="px-3 py-3 text-center w-12"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-borderClr/20">
-              {items.map((item, idx) => (
-                <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
-                  <td className="px-4 py-3">
-                    <input
-                      type="text"
-                      placeholder="e.g. Italian Marble Dining Table"
-                      value={item.description}
-                      onChange={(e) => onUpdateItem(item.id, 'description', e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-hoverBg/60 border border-borderClr/30 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) => onUpdateItem(item.id, 'quantity', Number(e.target.value))}
-                      className="w-full px-2 py-2 text-xs text-center rounded-lg bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      type="number"
-                      min={0}
-                      value={item.unitPrice}
-                      onChange={(e) => onUpdateItem(item.id, 'unitPrice', Number(e.target.value))}
-                      className="w-full px-3 py-2 text-xs text-right rounded-lg bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <select
-                      value={item.taxPercent}
-                      onChange={(e) => onUpdateItem(item.id, 'taxPercent', Number(e.target.value))}
-                      className="w-full px-2 py-2 text-xs text-right rounded-lg bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
-                    >
-                      <option value={0}>0%</option>
-                      <option value={5}>5%</option>
-                      <option value={12}>12%</option>
-                      <option value={18}>18%</option>
-                      <option value={28}>28%</option>
-                    </select>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className="text-xs font-black text-txtPrimary">
-                      ₹{((item.quantity * item.unitPrice * (1 + item.taxPercent / 100)) || 0).toLocaleString('en-IN')}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      disabled={items.length === 1}
-                      onClick={() => onRemoveItem(item.id)}
-                      className="p-1.5 rounded-lg text-txtSecondary hover:text-danger hover:bg-danger/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-borderClr/20 text-xs">
+              {items.map((item, idx) => {
+                const qty = item.quantity || 0;
+                const price = item.unitPrice || 0;
+                const disc = item.discount || 0;
+                const lineSub = Math.max(0, qty * price - disc);
+                const lineTotal = lineSub * (1 + (item.taxPercent || 0) / 100);
+
+                return (
+                  <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
+                    {/* SR. */}
+                    <td className="px-3 py-3 text-center font-bold text-txtSecondary">
+                      {idx + 1}
+                    </td>
+
+                    {/* PRODUCT / OTHER CHARGES */}
+                    <td className="px-3 py-3">
+                      <input
+                        type="text"
+                        placeholder="e.g. Custom Velvet Curtains & Drapes"
+                        value={item.description}
+                        onChange={(e) => onUpdateItem(item.id, 'description', e.target.value)}
+                        className="w-full px-3 py-2 text-xs rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
+                      />
+                    </td>
+
+                    {/* HSN/SAC CODE */}
+                    <td className="px-3 py-3">
+                      <input
+                        type="text"
+                        placeholder="94036000"
+                        value={item.hsnCode || '94036000'}
+                        onChange={(e) => onUpdateItem(item.id, 'hsnCode', e.target.value)}
+                        className="w-full px-2 py-2 text-xs text-center rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-medium focus:outline-none focus:border-primary/50"
+                      />
+                    </td>
+
+                    {/* QTY. */}
+                    <td className="px-3 py-3">
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) => onUpdateItem(item.id, 'quantity', Number(e.target.value))}
+                        className="w-full px-2 py-2 text-xs text-center rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
+                      />
+                    </td>
+
+                    {/* UOM */}
+                    <td className="px-3 py-3">
+                      <select
+                        value={item.uom || 'NOS'}
+                        onChange={(e) => onUpdateItem(item.id, 'uom', e.target.value)}
+                        className="w-full px-2 py-2 text-xs text-center rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
+                      >
+                        {uomOptions.map((u) => (
+                          <option key={u} value={u}>
+                            {u}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
+                    {/* PRICE */}
+                    <td className="px-3 py-3">
+                      <input
+                        type="number"
+                        min={0}
+                        value={item.unitPrice}
+                        onChange={(e) => onUpdateItem(item.id, 'unitPrice', Number(e.target.value))}
+                        className="w-full px-2.5 py-2 text-xs text-right rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
+                      />
+                    </td>
+
+                    {/* DISCOUNT */}
+                    <td className="px-3 py-3">
+                      <input
+                        type="number"
+                        min={0}
+                        placeholder="0"
+                        value={item.discount || 0}
+                        onChange={(e) => onUpdateItem(item.id, 'discount', Number(e.target.value))}
+                        className="w-full px-2 py-2 text-xs text-right rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-medium focus:outline-none focus:border-primary/50"
+                      />
+                    </td>
+
+                    {/* CGST + SGST */}
+                    <td className="px-3 py-3">
+                      <select
+                        value={item.taxPercent}
+                        onChange={(e) => onUpdateItem(item.id, 'taxPercent', Number(e.target.value))}
+                        className="w-full px-2 py-2 text-xs text-right rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50"
+                      >
+                        <option value={18}>18% (9%+9%)</option>
+                        <option value={12}>12% (6%+6%)</option>
+                        <option value={5}>5% (2.5%+2.5%)</option>
+                        <option value={28}>28% (14%+14%)</option>
+                        <option value={0}>0% GST</option>
+                      </select>
+                    </td>
+
+                    {/* TOTAL */}
+                    <td className="px-3 py-3 text-right">
+                      <span className="text-xs font-black text-txtPrimary">
+                        ₹{lineTotal.toLocaleString('en-IN')}
+                      </span>
+                    </td>
+
+                    {/* ACTION */}
+                    <td className="px-3 py-3 text-center">
+                      <button
+                        type="button"
+                        disabled={items.length === 1}
+                        onClick={() => onRemoveItem(item.id)}
+                        className="p-1.5 rounded-lg text-txtSecondary hover:text-danger hover:bg-danger/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-      </div>
-
-      {/* Terms & Notes Section */}
-      <div className="glass-panel p-6 rounded-3xl space-y-3">
-        <label className="block text-xs font-bold text-txtPrimary uppercase tracking-wider">Terms & Notes for Client</label>
-        <textarea
-          rows={3}
-          placeholder="e.g. 50% advance required before production begins. Valid for 15 days from issue date."
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full px-4 py-3 text-xs rounded-2xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 transition-colors font-medium"
-        />
       </div>
     </div>
   );

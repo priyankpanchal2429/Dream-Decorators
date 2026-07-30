@@ -3,8 +3,11 @@ export type QuotationStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'EXPI
 export interface QuotationItem {
   id: string;
   description: string;
+  hsnCode?: string;
   quantity: number;
+  uom?: string;
   unitPrice: number;
+  discount?: number;
   taxPercent: number;
   total: number;
 }

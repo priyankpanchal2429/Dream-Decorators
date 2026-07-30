@@ -131,43 +131,53 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
           </div>
         </div>
 
-        {/* Minimal Itemized Line Items Table */}
+        {/* Itemized Line Items Table (9 Requested Columns) */}
         <div className="overflow-hidden border border-zinc-200 rounded-lg my-4">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-zinc-100 text-zinc-700 text-[8.5px] font-bold uppercase tracking-wider border-b border-zinc-200">
-                <th className="px-3 py-2 text-center w-8">#</th>
-                <th className="px-3 py-2">Item Description</th>
-                <th className="px-3 py-2 text-center w-16">HSN/SAC</th>
-                <th className="px-3 py-2 text-center w-16">Qty</th>
-                <th className="px-3 py-2 text-right w-20">Rate (₹)</th>
-                <th className="px-3 py-2 text-right w-14">GST %</th>
-                <th className="px-3 py-2 text-right w-24">Total (₹)</th>
+              <tr className="bg-zinc-100 text-zinc-700 text-[8px] font-bold uppercase tracking-wider border-b border-zinc-200">
+                <th className="px-2 py-2 text-center w-7">SR.</th>
+                <th className="px-3 py-2">PRODUCT / OTHER CHARGES</th>
+                <th className="px-2 py-2 text-center w-20">HSN/SAC CODE</th>
+                <th className="px-2 py-2 text-center w-12">QTY.</th>
+                <th className="px-2 py-2 text-center w-12">UOM</th>
+                <th className="px-2 py-2 text-right w-20">PRICE (₹)</th>
+                <th className="px-2 py-2 text-right w-16">DISCOUNT</th>
+                <th className="px-2 py-2 text-right w-20">CGST + SGST</th>
+                <th className="px-3 py-2 text-right w-24">TOTAL (₹)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200 text-[9.5px]">
-              {items.map((item, idx) => (
-                <tr key={item.id || idx} className="hover:bg-zinc-50/50">
-                  <td className="px-3 py-2 text-center font-semibold text-zinc-400">{idx + 1}</td>
-                  <td className="px-3 py-2">
-                    <span className="font-bold text-zinc-900 block">{item.description || 'Custom Interior Furniture'}</span>
-                    <span className="text-[8px] text-zinc-500 italic">Teakwood / Velvet • 1 Year Warranty</span>
-                  </td>
-                  <td className="px-3 py-2 text-center text-zinc-500">94036000</td>
-                  <td className="px-3 py-2 text-center font-bold text-zinc-800">{item.quantity}</td>
-                  <td className="px-3 py-2 text-right font-medium text-zinc-700">{formatINR(item.unitPrice)}</td>
-                  <td className="px-3 py-2 text-right text-zinc-500">{item.taxPercent}%</td>
-                  <td className="px-3 py-2 text-right font-bold text-zinc-900">
-                    {formatINR(item.quantity * item.unitPrice * (1 + item.taxPercent / 100))}
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-zinc-200 text-[9px]">
+              {items.map((item, idx) => {
+                const qty = item.quantity || 0;
+                const price = item.unitPrice || 0;
+                const disc = item.discount || 0;
+                const lineSub = Math.max(0, qty * price - disc);
+                const lineTotal = lineSub * (1 + (item.taxPercent || 0) / 100);
+
+                return (
+                  <tr key={item.id || idx} className="hover:bg-zinc-50/50">
+                    <td className="px-2 py-2 text-center font-semibold text-zinc-400">{idx + 1}</td>
+                    <td className="px-3 py-2">
+                      <span className="font-bold text-zinc-900 block">{item.description || 'Custom Interior Furniture'}</span>
+                      <span className="text-[7.5px] text-zinc-500 italic">Teakwood / Velvet • 1 Year Warranty</span>
+                    </td>
+                    <td className="px-2 py-2 text-center text-zinc-500 font-medium">{item.hsnCode || '94036000'}</td>
+                    <td className="px-2 py-2 text-center font-bold text-zinc-800">{qty}</td>
+                    <td className="px-2 py-2 text-center font-bold text-zinc-600">{item.uom || 'NOS'}</td>
+                    <td className="px-2 py-2 text-right font-medium text-zinc-700">{formatINR(price)}</td>
+                    <td className="px-2 py-2 text-right font-medium text-zinc-500">{disc > 0 ? `-${formatINR(disc)}` : '₹0'}</td>
+                    <td className="px-2 py-2 text-right text-zinc-600 font-semibold">{item.taxPercent}%</td>
+                    <td className="px-3 py-2 text-right font-bold text-zinc-900">{formatINR(lineTotal)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
-            <tfoot className="bg-zinc-50 font-semibold text-[9px] border-t border-zinc-200">
+            <tfoot className="bg-zinc-50 font-semibold text-[8.5px] border-t border-zinc-200">
               <tr>
                 <td colSpan={3} className="px-3 py-1.5 text-right uppercase font-bold text-zinc-500">Total Quantity:</td>
-                <td className="px-3 py-1.5 text-center font-bold text-zinc-900 whitespace-nowrap">{totalQty} NOS</td>
-                <td colSpan={3} className="px-3 py-1.5 text-right font-bold text-primary">
+                <td colSpan={2} className="px-2 py-1.5 text-center font-bold text-zinc-900 whitespace-nowrap">{totalQty} NOS</td>
+                <td colSpan={4} className="px-3 py-1.5 text-right font-bold text-primary text-xs">
                   {formatINR(subtotal)}
                 </td>
               </tr>
@@ -247,7 +257,7 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
         </div>
       </div>
 
-      {/* Terms & Bank Details Footer Grid - Moved to Very End of Page */}
+      {/* Terms & Bank Details Footer Grid */}
       <div className="grid grid-cols-12 gap-4 p-3 bg-zinc-50/80 rounded-lg border border-zinc-200 text-[8.5px] mt-auto pt-3 border-t border-zinc-300">
         {/* Terms & Conditions - 7 cols */}
         <div className="col-span-7 space-y-0.5">
