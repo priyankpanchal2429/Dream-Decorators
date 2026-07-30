@@ -141,7 +141,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
             </div>
             <div>
               <h3 className="text-sm font-bold text-txtPrimary">Line Items & Pricing</h3>
-              <p className="text-[10px] text-txtSecondary mt-0.5">Manage products, item notes, HSN/SAC codes, UOM, and GST tax calculations</p>
+              <p className="text-[10px] text-txtSecondary mt-0.5">Manage products, expandable item notes, HSN/SAC codes, UOM, and GST tax calculations</p>
             </div>
           </div>
 
@@ -161,14 +161,14 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
             <thead>
               <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9px] font-bold text-txtSecondary uppercase tracking-wider">
                 <th className="px-3 py-3 text-center w-10">SR.</th>
-                <th className="px-3 py-3">PRODUCT / OTHER CHARGES</th>
+                <th className="px-3 py-3 w-[280px]">PRODUCT / OTHER CHARGES</th>
                 <th className="px-3 py-3 text-center w-28">HSN/SAC CODE</th>
                 <th className="px-3 py-3 text-center w-20">QTY.</th>
                 <th className="px-3 py-3 text-center w-24">UOM</th>
                 <th className="px-3 py-3 text-right w-28">PRICE (₹)</th>
                 <th className="px-3 py-3 text-right w-24">DISCOUNT</th>
                 <th className="px-3 py-3 text-right w-36">CGST + SGST</th>
-                <th className="px-3 py-3 text-right w-32">TOTAL (₹)</th>
+                <th className="px-3 py-3 text-right w-36">TOTAL (₹)</th>
                 <th className="px-3 py-3 text-center w-12"></th>
               </tr>
             </thead>
@@ -181,33 +181,33 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                 const lineTotal = lineSub * (1 + (item.taxPercent || 0) / 100);
 
                 return (
-                  <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors align-top">
+                  <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
                     {/* SR. */}
-                    <td className="px-3 py-3 text-center font-bold text-txtSecondary pt-4">
+                    <td className="px-3 py-3 text-center font-bold text-txtSecondary align-middle">
                       {idx + 1}
                     </td>
 
-                    {/* PRODUCT / OTHER CHARGES + ITEM NOTES UNDERNEATH */}
-                    <td className="px-3 py-3 space-y-2">
+                    {/* PRODUCT / OTHER CHARGES + EXPANDABLE ITEM NOTES */}
+                    <td className="px-3 py-3 space-y-2 w-[280px]">
                       <input
                         type="text"
-                        placeholder="Item Title (e.g. Custom Velvet Curtains & Drapes)"
+                        placeholder="Item Title (e.g. Custom Velvet Curtains)"
                         value={item.description}
                         onChange={(e) => onUpdateItem(item.id, 'description', e.target.value)}
                         className="w-full px-3 py-2 text-xs rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary focus:outline-none focus:border-primary/50 font-bold"
                       />
-                      {/* Item Notes / Description Box */}
-                      <input
-                        type="text"
-                        placeholder="Item notes / specifications (e.g. Teakwood frame with premium velvet finish)"
+                      {/* Expandable Adjustable Textarea for Item Notes */}
+                      <textarea
+                        rows={2}
+                        placeholder="Item notes & specs (expandable)..."
                         value={item.itemNotes || ''}
                         onChange={(e) => onUpdateItem(item.id, 'itemNotes', e.target.value)}
-                        className="w-full px-3 py-1.5 text-[11px] rounded-lg bg-hoverBg/30 border border-borderClr/20 text-txtSecondary placeholder:text-txtSecondary/50 focus:outline-none focus:border-primary/40 font-medium"
+                        className="w-full px-3 py-1.5 text-[11px] rounded-xl bg-hoverBg/30 border border-borderClr/20 text-txtSecondary placeholder:text-txtSecondary/50 focus:outline-none focus:border-primary/40 font-medium resize-y"
                       />
                     </td>
 
                     {/* HSN/SAC CODE */}
-                    <td className="px-3 py-3 pt-4">
+                    <td className="px-3 py-3 align-middle">
                       <input
                         type="text"
                         placeholder="94036000"
@@ -218,7 +218,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* QTY. */}
-                    <td className="px-3 py-3 pt-4">
+                    <td className="px-3 py-3 align-middle">
                       <input
                         type="number"
                         min={1}
@@ -229,7 +229,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* UOM */}
-                    <td className="px-3 py-3 pt-4">
+                    <td className="px-3 py-3 align-middle">
                       <select
                         value={item.uom || 'NOS'}
                         onChange={(e) => onUpdateItem(item.id, 'uom', e.target.value)}
@@ -244,7 +244,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* PRICE */}
-                    <td className="px-3 py-3 pt-4">
+                    <td className="px-3 py-3 align-middle">
                       <input
                         type="number"
                         min={0}
@@ -255,7 +255,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* DISCOUNT */}
-                    <td className="px-3 py-3 pt-4">
+                    <td className="px-3 py-3 align-middle">
                       <input
                         type="number"
                         min={0}
@@ -266,8 +266,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* CGST + SGST (Shows 9% - 9% instead of 18%) */}
-                    <td className="px-3 py-3 pt-4">
+                    {/* CGST + SGST (Shows 9% - 9%) */}
+                    <td className="px-3 py-3 align-middle">
                       <select
                         value={item.taxPercent}
                         onChange={(e) => onUpdateItem(item.id, 'taxPercent', Number(e.target.value))}
@@ -281,15 +281,15 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       </select>
                     </td>
 
-                    {/* TOTAL */}
-                    <td className="px-3 py-3 text-right pt-4">
-                      <span className="text-xs font-black text-txtPrimary">
+                    {/* TOTAL (₹) - VERTICALLY MIDDLE ALIGNED & LARGER TEXT */}
+                    <td className="px-3 py-3 text-right align-middle">
+                      <span className="text-sm font-black text-txtPrimary tracking-tight">
                         ₹{lineTotal.toLocaleString('en-IN')}
                       </span>
                     </td>
 
                     {/* ACTION */}
-                    <td className="px-3 py-3 text-center pt-4">
+                    <td className="px-3 py-3 text-center align-middle">
                       <button
                         type="button"
                         disabled={items.length === 1}
