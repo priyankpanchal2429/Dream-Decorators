@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Truck, Search, Plus, CheckCircle2, Clock } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { DeliveryChallan } from '../types';
 import { ChallanFormModal } from '../components/ChallanFormModal';
 
 export default function DeliveryChallansPage() {
