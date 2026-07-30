@@ -99,7 +99,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
               Print / View Document
             </h3>
             <span className="text-[10px] font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-              A4 Sheet Preview
+              {selectedCopyTypes.length} {selectedCopyTypes.length === 1 ? 'Page' : 'Pages'} Preview
             </span>
           </div>
 
@@ -129,25 +129,27 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
           </div>
         </div>
 
-        {/* CENTER DOCUMENT CANVAS FRAME - NATIVE VERTICAL SCROLLING ENABLED */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-appBg/60 flex justify-center print:p-0 print:bg-white">
-          <div className="shadow-2xl rounded-sm transition-transform print:shadow-none shrink-0">
-            <QuotationPrintDocument
-              quotationNumber={quotationNumber}
-              issueDate={issueDate}
-              validUntil={validUntil}
-              customerName={customerName}
-              customerEmail={customerEmail}
-              customerPhone={customerPhone}
-              items={items}
-              subtotal={subtotal}
-              taxAmount={taxAmount}
-              discountAmount={discountAmount}
-              grandTotal={grandTotal}
-              notes={notes}
-              selectedCopyTypes={selectedCopyTypes}
-            />
-          </div>
+        {/* CENTER DOCUMENT CANVAS FRAME - MULTI-PAGE STACK WITH NATIVE VERTICAL SCROLLING */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-appBg/60 flex flex-col items-center gap-8 print:p-0 print:bg-white print:gap-0">
+          {selectedCopyTypes.map((cType) => (
+            <div key={cType} className="shadow-2xl rounded-sm transition-transform print:shadow-none shrink-0 print:w-full">
+              <QuotationPrintDocument
+                quotationNumber={quotationNumber}
+                issueDate={issueDate}
+                validUntil={validUntil}
+                customerName={customerName}
+                customerEmail={customerEmail}
+                customerPhone={customerPhone}
+                items={items}
+                subtotal={subtotal}
+                taxAmount={taxAmount}
+                discountAmount={discountAmount}
+                grandTotal={grandTotal}
+                notes={notes}
+                copyType={cType}
+              />
+            </div>
+          ))}
         </div>
 
         {/* BOTTOM ACTION & MULTI-SELECT COPY TYPE FOOTER BAR */}
@@ -155,7 +157,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
           {/* Multi-Select Copy Type Checkbox Options */}
           <div className="flex items-center justify-end gap-3 text-xs font-semibold text-txtPrimary">
             <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider mr-1">
-              Select Copy Types:
+              Select Copy Types to Print:
             </span>
             {copyOptions.map((opt) => {
               const isChecked = selectedCopyTypes.includes(opt);
@@ -218,7 +220,7 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <Printer className="h-4 w-4" />
-                Print
+                Print ({selectedCopyTypes.length} {selectedCopyTypes.length === 1 ? 'Page' : 'Pages'})
               </button>
             </div>
           </div>
