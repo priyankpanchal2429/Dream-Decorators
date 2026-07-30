@@ -6,6 +6,7 @@ export interface SalesInvoice {
   customerName: string;
   customerPhone?: string;
   issueDate: string;
+  invoiceDate?: string;
   dueDate: string;
   totalAmount: number;
   paidAmount: number;

@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CreditCard, Search, Plus, ArrowUpRight, ArrowDownLeft, CheckCircle2 } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { PaymentTransaction } from '../types';
 import { RecordPaymentModal } from '../components/RecordPaymentModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function PaymentsPage() {
   const [searchTerm, setSearchTerm] = useState('');

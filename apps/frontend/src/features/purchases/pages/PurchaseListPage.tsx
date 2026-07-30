@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Search, Plus, Truck, CheckCircle2, Clock } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { PurchaseOrder } from '../types';
 import { PurchaseFormModal } from '../components/PurchaseFormModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function PurchaseListPage() {
   const [searchTerm, setSearchTerm] = useState('');

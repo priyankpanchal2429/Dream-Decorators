@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Search, Plus, UserCheck, TrendingUp, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { Customer } from '../types';
 import { CustomerFormModal } from '../components/CustomerFormModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function CustomerListPage() {
   const [searchTerm, setSearchTerm] = useState('');

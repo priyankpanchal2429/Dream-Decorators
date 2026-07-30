@@ -1,13 +1,17 @@
 export interface Vendor {
   id: string;
   name: string;
-  category: 'Timber & Teakwood' | 'Fabrics & Curtains' | 'Marble & Stone' | 'Hardware & Fitting';
+  vendorName?: string;
+  category: string;
   contactPerson: string;
   phone: string;
   email: string;
   city: string;
+  state?: string;
   gstin: string;
   totalPurchases: number;
+  totalSpend?: number;
   payableBalance: number;
+  payable?: number;
   status: 'ACTIVE' | 'INACTIVE';
 }

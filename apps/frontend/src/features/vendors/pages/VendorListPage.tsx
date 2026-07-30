@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Search, Plus, ShoppingBag, CreditCard, Mail, Phone, MapPin } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { Vendor } from '../types';
 import { VendorFormModal } from '../components/VendorFormModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function VendorListPage() {
   const [searchTerm, setSearchTerm] = useState('');

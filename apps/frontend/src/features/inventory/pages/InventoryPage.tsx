@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Package, Search, Plus, AlertCircle, Layers, TrendingUp } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { InventoryItem } from '../types';
 import { InventoryFormModal } from '../components/InventoryFormModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function InventoryPage() {
   const [searchTerm, setSearchTerm] = useState('');

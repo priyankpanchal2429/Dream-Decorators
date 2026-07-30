@@ -5,5 +5,8 @@ export interface PurchaseOrder {
   category: string;
   orderDate: string;
   amount: number;
+  totalAmount?: number;
   status: 'RECEIVED' | 'PENDING' | 'CANCELLED';
 }
+
+export type PurchaseInvoice = PurchaseOrder;

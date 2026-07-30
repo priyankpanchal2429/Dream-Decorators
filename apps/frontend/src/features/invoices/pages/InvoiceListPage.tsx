@@ -4,7 +4,9 @@ import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Receipt, Search, Plus, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
 import { AppShell } from '@/components/layout/AppShell';
+import { SalesInvoice } from '../types';
 import { InvoiceFormModal } from '../components/InvoiceFormModal';
+import { formatINR } from '@/features/dashboard/constants';
 
 export default function InvoiceListPage() {
   const [searchTerm, setSearchTerm] = useState('');
