@@ -182,13 +182,13 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
 
                 return (
                   <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
-                    {/* SR. */}
-                    <td className="px-3 py-3 text-center font-bold text-txtSecondary align-middle">
+                    {/* SR. - Top Aligned */}
+                    <td className="px-3 py-3 text-center font-bold text-txtSecondary align-top pt-4">
                       {idx + 1}
                     </td>
 
                     {/* PRODUCT / OTHER CHARGES + EXPANDABLE ITEM NOTES */}
-                    <td className="px-3 py-3 space-y-2 w-[280px]">
+                    <td className="px-3 py-3 space-y-2 w-[280px] align-top">
                       <input
                         type="text"
                         placeholder="Item Title (e.g. Custom Velvet Curtains)"
@@ -206,8 +206,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* HSN/SAC CODE */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* HSN/SAC CODE - Top Aligned with Item Title Input */}
+                    <td className="px-3 py-3 align-top">
                       <input
                         type="text"
                         placeholder="94036000"
@@ -217,8 +217,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* QTY. */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* QTY. - Top Aligned */}
+                    <td className="px-3 py-3 align-top">
                       <input
                         type="number"
                         min={1}
@@ -228,8 +228,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* UOM */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* UOM - Top Aligned */}
+                    <td className="px-3 py-3 align-top">
                       <select
                         value={item.uom || 'NOS'}
                         onChange={(e) => onUpdateItem(item.id, 'uom', e.target.value)}
@@ -243,8 +243,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       </select>
                     </td>
 
-                    {/* PRICE */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* PRICE - Top Aligned */}
+                    <td className="px-3 py-3 align-top">
                       <input
                         type="number"
                         min={0}
@@ -254,8 +254,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* DISCOUNT */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* DISCOUNT - Top Aligned */}
+                    <td className="px-3 py-3 align-top">
                       <input
                         type="number"
                         min={0}
@@ -266,8 +266,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* CGST + SGST (Shows 9% - 9%) */}
-                    <td className="px-3 py-3 align-middle">
+                    {/* CGST + SGST - Top Aligned */}
+                    <td className="px-3 py-3 align-top">
                       <select
                         value={item.taxPercent}
                         onChange={(e) => onUpdateItem(item.id, 'taxPercent', Number(e.target.value))}
@@ -281,15 +281,15 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       </select>
                     </td>
 
-                    {/* TOTAL (₹) - VERTICALLY MIDDLE ALIGNED & LARGER TEXT */}
-                    <td className="px-3 py-3 text-right align-middle">
+                    {/* TOTAL (₹) - TOP ALIGNED WITH ITEM TITLE */}
+                    <td className="px-3 py-3 text-right align-top pt-4">
                       <span className="text-sm font-black text-txtPrimary tracking-tight">
                         ₹{lineTotal.toLocaleString('en-IN')}
                       </span>
                     </td>
 
-                    {/* ACTION */}
-                    <td className="px-3 py-3 text-center align-middle">
+                    {/* ACTION - Top Aligned */}
+                    <td className="px-3 py-3 text-center align-top pt-3">
                       <button
                         type="button"
                         disabled={items.length === 1}
