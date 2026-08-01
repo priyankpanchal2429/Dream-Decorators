@@ -19,6 +19,7 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 }) => {
   const isPositive = data.isPositive;
   const trendColor = isPositive ? '#16A34A' : '#DC2626';
+  const gradientId = React.useMemo(() => title.replace(/[^a-zA-Z0-9]/g, '-'), [title]);
 
   // Determine icon background based on title
   const iconBg = title.includes('Sales')
@@ -81,14 +82,14 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
         <div className="w-20 h-6">
           <svg viewBox="0 0 100 30" className="w-full h-full preserve-3d overflow-visible" preserveAspectRatio="none">
             <defs>
-              <linearGradient id={`gradient-${title}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={trendColor} stopOpacity="0.3" />
+              <linearGradient id={`gradient-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={trendColor} stopOpacity="0.25" />
                 <stop offset="100%" stopColor={trendColor} stopOpacity="0" />
               </linearGradient>
             </defs>
             <path
               d="M0,25 C20,20 30,5 50,15 C70,25 80,5 100,10 L100,30 L0,30 Z"
-              fill={`url(#gradient-${title})`}
+              fill={`url(#gradient-${gradientId})`}
               className="transition-all duration-300"
             />
             <path

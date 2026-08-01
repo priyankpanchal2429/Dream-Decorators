@@ -8,6 +8,19 @@ import { Customer } from '../types';
 import { CustomerFormModal } from '../components/CustomerFormModal';
 import { formatINR } from '@/features/dashboard/constants';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 260, damping: 20 } },
+};
+
 export default function CustomerListPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -123,8 +136,8 @@ export default function CustomerListPage() {
           </motion.div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Clients</p>
                 <h3 className="text-2xl font-black text-txtPrimary mt-1">{customers.length}</h3>
@@ -132,9 +145,9 @@ export default function CustomerListPage() {
               <div className="p-3 rounded-xl bg-primary/10 text-primary">
                 <UserCheck className="h-5 w-5" />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Lifetime Revenue</p>
                 <h3 className="text-2xl font-black text-primary mt-1">{formatINR(totalRevenue)}</h3>
@@ -142,9 +155,9 @@ export default function CustomerListPage() {
               <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
                 <TrendingUp className="h-5 w-5" />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Outstanding</p>
                 <h3 className="text-2xl font-black text-danger mt-1">{formatINR(totalOutstanding)}</h3>
@@ -152,9 +165,9 @@ export default function CustomerListPage() {
               <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
                 <AlertCircle className="h-5 w-5" />
               </div>
-            </div>
+            </motion.div>
 
-            <div className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Active Accounts</p>
                 <h3 className="text-2xl font-black text-txtPrimary mt-1">
@@ -164,8 +177,8 @@ export default function CustomerListPage() {
               <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
                 <Users className="h-5 w-5" />
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Filter Bar */}
           <div className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
