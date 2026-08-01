@@ -11,9 +11,14 @@ interface QuotationPreviewModalProps {
   quotationNumber: string;
   issueDate: string;
   validUntil: string;
+  companyName?: string;
+  contactPerson?: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
+  customerAddress?: string;
+  customerGstin?: string;
+  placeOfSupply?: string;
   items: QuotationItem[];
   subtotal: number;
   taxAmount: number;
@@ -28,9 +33,14 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
   quotationNumber,
   issueDate,
   validUntil,
+  companyName,
+  contactPerson,
   customerName,
   customerEmail,
   customerPhone,
+  customerAddress,
+  customerGstin,
+  placeOfSupply,
   items,
   subtotal,
   taxAmount,
@@ -63,14 +73,13 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
 
   const handleWhatsAppShare = () => {
     const text = encodeURIComponent(
-      `Hello ${customerName || 'Client'}, here is your Quotation estimate ${quotationNumber} from Dream Decorators for Total ${grandTotal.toLocaleString('en-IN')}.`
+      `Hello ${customerName || companyName || 'Client'}, here is your Quotation estimate ${quotationNumber} from Dream Decorators for Total ${grandTotal.toLocaleString('en-IN')}.`
     );
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
   const toggleCopyType = (type: CopyType) => {
     if (selectedCopyTypes.includes(type)) {
-      // Don't allow unchecking if it's the last remaining selection
       if (selectedCopyTypes.length > 1) {
         setSelectedCopyTypes(selectedCopyTypes.filter((t) => t !== type));
       }
@@ -137,9 +146,14 @@ export const QuotationPreviewModal: React.FC<QuotationPreviewModalProps> = ({
                 quotationNumber={quotationNumber}
                 issueDate={issueDate}
                 validUntil={validUntil}
+                companyName={companyName}
+                contactPerson={contactPerson}
                 customerName={customerName}
                 customerEmail={customerEmail}
                 customerPhone={customerPhone}
+                customerAddress={customerAddress}
+                customerGstin={customerGstin}
+                placeOfSupply={placeOfSupply}
                 items={items}
                 subtotal={subtotal}
                 taxAmount={taxAmount}

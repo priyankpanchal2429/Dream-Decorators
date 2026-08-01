@@ -8,6 +8,8 @@ import { Input, CurrencyInput, GSTInput, PhoneInput } from '@/components/input';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { FormGrid, FormSection } from '@/components/form';
 import { Users } from 'lucide-react';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface CustomerFormModalProps {
   isOpen: boolean;
@@ -50,6 +52,18 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       pincode,
       billingAddress: { addressLine1, city, state, pincode, country: 'India' },
       shippingAddress: { addressLine1, city, state, pincode, country: 'India' },
+    });
+
+    const clientTitle = name || 'New Client';
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: 'Client Account Saved',
+      message: `${clientTitle} has been updated successfully.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'Client Saved',
+      message: `${clientTitle} profile updated in system directory.`,
+      type: 'success',
     });
   };
 

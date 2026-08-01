@@ -54,7 +54,7 @@ export const InventoryFormModal: React.FC<InventoryFormModalProps> = ({ isOpen, 
       onClose={onClose}
       title="Add Stock Item"
       description="Add raw materials, wood, fabric or decor products to inventory."
-      icon={<Package className="h-5 w-5 text-blue-500" />}
+      icon={<Package className="h-5 w-5 text-primary" />}
       maxWidth="max-w-xl"
       footer={
         <>
@@ -68,7 +68,7 @@ export const InventoryFormModal: React.FC<InventoryFormModalProps> = ({ isOpen, 
           <button
             type="button"
             onClick={handleSubmit}
-            className="px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs shadow-lg shadow-blue-500/20 transition-all"
+            className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all"
           >
             Add Stock Item
           </button>
@@ -88,7 +88,7 @@ export const InventoryFormModal: React.FC<InventoryFormModalProps> = ({ isOpen, 
               placeholder="e.g. Teak Wood Dining Chair Frame"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-blue-500/50 font-bold"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 font-bold"
             />
           </div>
         </div>

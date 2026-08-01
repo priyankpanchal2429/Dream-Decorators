@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { CreditCard, User, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { PaymentTransaction } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface RecordPaymentModalProps {
   isOpen: boolean;
@@ -23,14 +25,32 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, 
     e.preventDefault();
     if (!partyName.trim()) return;
 
+    const formattedAmount = parseFloat(amount) || 50000;
+    const reference = txnRef || `TXN-2026-${Math.floor(100 + Math.random() * 900)}`;
+
     onSave({
-      txnRef: txnRef || `TXN-2026-${Math.floor(100 + Math.random() * 900)}`,
+      txnRef: reference,
       type,
       partyName,
       date,
       paymentMode,
-      amount: parseFloat(amount) || 50000,
+      amount: formattedAmount,
       status: 'SUCCESS',
+    });
+
+    const isReceived = type === 'RECEIVED';
+    const notifTitle = isReceived ? 'Payment Received' : 'Payment Outflow';
+    const notifMsg = `${isReceived ? 'Collection from' : 'Payout to'} ${partyName} of ₹${formattedAmount.toLocaleString('en-IN')} recorded (${paymentMode}).`;
+
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: notifTitle,
+      message: notifMsg,
+    });
+    useNotificationStore.getState().addNotification({
+      title: notifTitle,
+      message: notifMsg,
+      type: 'success',
     });
 
     setPartyName('');

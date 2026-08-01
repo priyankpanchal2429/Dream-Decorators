@@ -15,9 +15,9 @@ const config: Config = {
           300: 'var(--color-gray-300)',
         },
         primary: {
-          DEFAULT: '#1C47C5',
-          hover: '#1539A3',
-          light: '#EEF2FF',
+          DEFAULT: 'var(--color-primary)',
+          hover: 'var(--color-primary-hover)',
+          light: 'var(--color-primary-light)',
         },
         success: {
           DEFAULT: '#16A34A',

@@ -28,7 +28,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName = 'Ad
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 pt-6">
       <div>
         <h1 className="text-3xl font-black text-txtPrimary tracking-tight">
-          {greeting}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-500">{userName}</span> 👋
+          {greeting}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-500">{userName}</span> 👋
         </h1>
         <p className="text-sm font-medium text-txtSecondary mt-2 flex items-center gap-1.5">
           Here is what's happening with your business today.

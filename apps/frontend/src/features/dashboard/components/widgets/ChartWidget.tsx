@@ -56,8 +56,8 @@ export const ChartWidget: React.FC = () => {
           >
             <defs>
               <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#1C47C5" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#1C47C5" stopOpacity={0} />
+                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#DC2626" stopOpacity={0.2} />
@@ -94,7 +94,7 @@ export const ChartWidget: React.FC = () => {
               type="monotone"
               dataKey="sales"
               name="Sales"
-              stroke="#1C47C5"
+              stroke="var(--color-primary)"
               strokeWidth={3}
               fillOpacity={1}
               fill="url(#colorSales)"

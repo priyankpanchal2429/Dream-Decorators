@@ -12,6 +12,8 @@ interface QuotationPrintDocumentProps {
   quotationNumber: string;
   issueDate: string;
   validUntil: string;
+  companyName?: string;
+  contactPerson?: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
@@ -32,13 +34,15 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
   quotationNumber,
   issueDate,
   validUntil,
+  companyName,
+  contactPerson,
   customerName,
   customerEmail,
-  customerPhone = '+91 98765 43210',
-  customerAddress = 'Business Bay, Satellite, Ahmedabad, Gujarat - 380015',
-  customerGstin = '24AHBPV9744N1ZL',
-  customerPan = 'AHBPV9744N',
-  placeOfSupply = 'Gujarat (24)',
+  customerPhone = '',
+  customerAddress = '',
+  customerGstin = '',
+  customerPan = '',
+  placeOfSupply = '24 - Gujarat',
   items,
   subtotal,
   taxAmount,
@@ -50,6 +54,8 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
   const cgstAmount = taxAmount / 2;
   const sgstAmount = taxAmount / 2;
   const totalQty = items.reduce((acc, curr) => acc + curr.quantity, 0);
+  const finalCustomerName = companyName || customerName || contactPerson || 'Valued Client';
+  const contactName = contactPerson || customerName;
 
   return (
     /* Standard A4 dimensions: 794px width x 1123px height (210mm x 297mm @ 96dpi) */
@@ -96,14 +102,16 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
             <span className="text-[8px] font-bold text-primary uppercase tracking-wider block mb-1">
               Billed / Prepared For
             </span>
-            <p className="text-[11px] font-black text-zinc-900">{customerName || 'Aarav Sharma'}</p>
-            <p className="text-zinc-600 font-medium">{customerEmail || 'aarav.sharma@example.com'}</p>
+            <p className="text-[11px] font-black text-zinc-900">{finalCustomerName}</p>
+            {companyName && contactName && (
+              <p className="text-zinc-600 font-semibold">Attn: {contactName}</p>
+            )}
+            <p className="text-zinc-600 font-medium">{customerEmail}</p>
             <p className="text-zinc-600 font-medium">{customerAddress}</p>
             <div className="grid grid-cols-2 gap-x-2 mt-2 pt-1.5 border-t border-zinc-200 text-[8.5px]">
-              <p><span className="font-medium text-zinc-500">Phone:</span> <span className="font-semibold text-zinc-800">{customerPhone}</span></p>
-              <p><span className="font-medium text-zinc-500">GSTIN:</span> <span className="font-semibold text-zinc-800">{customerGstin}</span></p>
-              <p><span className="font-medium text-zinc-500">PAN:</span> <span className="font-semibold text-zinc-800">{customerPan}</span></p>
-              <p><span className="font-medium text-zinc-500">State:</span> <span className="font-semibold text-zinc-800">{placeOfSupply}</span></p>
+              {customerPhone && <p><span className="font-medium text-zinc-500">Phone:</span> <span className="font-semibold text-zinc-800">{customerPhone}</span></p>}
+              {customerGstin && <p><span className="font-medium text-zinc-500">GSTIN/PAN:</span> <span className="font-semibold text-zinc-800">{customerGstin}</span></p>}
+              {placeOfSupply && <p><span className="font-medium text-zinc-500">Place of Supply:</span> <span className="font-semibold text-zinc-800">{placeOfSupply}</span></p>}
             </div>
           </div>
 

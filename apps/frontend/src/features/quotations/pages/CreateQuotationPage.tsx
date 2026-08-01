@@ -8,26 +8,34 @@ import { AppShell } from '@/components/layout/AppShell';
 import { CreateQuotationForm } from '../components/CreateQuotationForm';
 import { QuotationSummaryCard } from '../components/QuotationSummaryCard';
 import { QuotationPreviewModal } from '../components/QuotationPreviewModal';
+import { BankDetailsCard } from '../components/BankDetailsCard';
 import { QuotationItem } from '../types';
 
 export default function CreateQuotationPage() {
   const router = useRouter();
 
-  // Form State with rich defaults
-  const [customerName, setCustomerName] = useState('Aarav Sharma');
-  const [customerEmail, setCustomerEmail] = useState('aarav.sharma@example.com');
-  const [customerPhone, setCustomerPhone] = useState('+91 98765 43210');
+  // Form State - Blank by default for new quotation creation
+  const today = new Date().toISOString().split('T')[0];
+  const fifteenDaysLater = new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
+
+  const [companyName, setCompanyName] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [customerAddress, setCustomerAddress] = useState('');
+  const [customerGstin, setCustomerGstin] = useState('');
+  const [placeOfSupply, setPlaceOfSupply] = useState('');
   const [quotationNumber, setQuotationNumber] = useState(`QT-2026-${Math.floor(100 + Math.random() * 900)}`);
-  const [issueDate, setIssueDate] = useState('2026-07-30');
-  const [validUntil, setValidUntil] = useState('2026-08-15');
-  const [notes, setNotes] = useState('50% advance payment required. Proposal valid for 15 days from issue date.');
-  const [discountAmount, setDiscountAmount] = useState(2000);
+  const [issueDate, setIssueDate] = useState(today);
+  const [validUntil, setValidUntil] = useState(fifteenDaysLater);
+  const [notes, setNotes] = useState('');
+  const [discountAmount, setDiscountAmount] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Line Items State
+  // Line Items State - Blank row by default
   const [items, setItems] = useState<QuotationItem[]>([
-    { id: '1', description: 'Custom Velvet Curtains & Drapes', hsnCode: '94036000', quantity: 4, uom: 'NOS', unitPrice: 15500, discount: 0, taxPercent: 18, total: 73160 },
-    { id: '2', description: 'Italian Marble Coffee Table', hsnCode: '94036000', quantity: 1, uom: 'NOS', unitPrice: 42000, discount: 0, taxPercent: 18, total: 49560 },
+    { id: '1', description: '', itemNotes: '', hsnCode: '', quantity: '' as any, uom: 'NOS', unitPrice: '' as any, discount: '' as any, taxPercent: '' as any, total: 0 },
   ]);
 
   // Dynamic Math
@@ -48,14 +56,15 @@ export default function CreateQuotationPage() {
   const handleAddItem = () => {
     const newItem: QuotationItem = {
       id: Date.now().toString(),
-      description: 'New Interior Decor Item',
-      hsnCode: '94036000',
-      quantity: 1,
+      description: '',
+      itemNotes: '',
+      hsnCode: '',
+      quantity: '' as any,
       uom: 'NOS',
-      unitPrice: 5000,
-      discount: 0,
-      taxPercent: 18,
-      total: 5900,
+      unitPrice: '' as any,
+      discount: '' as any,
+      taxPercent: '' as any,
+      total: 0,
     };
     setItems((prev) => [...prev, newItem]);
   };
@@ -135,12 +144,22 @@ export default function CreateQuotationPage() {
             transition={{ duration: 0.4, delay: 0.1 }}
           >
             <CreateQuotationForm
+              companyName={companyName}
+              setCompanyName={setCompanyName}
+              contactPerson={contactPerson}
+              setContactPerson={setContactPerson}
               customerName={customerName}
               setCustomerName={setCustomerName}
               customerEmail={customerEmail}
               setCustomerEmail={setCustomerEmail}
               customerPhone={customerPhone}
               setCustomerPhone={setCustomerPhone}
+              customerAddress={customerAddress}
+              setCustomerAddress={setCustomerAddress}
+              customerGstin={customerGstin}
+              setCustomerGstin={setCustomerGstin}
+              placeOfSupply={placeOfSupply}
+              setPlaceOfSupply={setPlaceOfSupply}
               quotationNumber={quotationNumber}
               setQuotationNumber={setQuotationNumber}
               issueDate={issueDate}
@@ -163,31 +182,36 @@ export default function CreateQuotationPage() {
             transition={{ duration: 0.4, delay: 0.2 }}
             className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           >
-            {/* Left 6-col: Terms & Notes for Client */}
-            <div className="glass-panel p-6 rounded-3xl space-y-3 flex flex-col justify-between">
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 pb-3 border-b border-borderClr/30">
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
-                    <FileText className="h-5 w-5" />
+            {/* Left 6-col: Terms & Notes for Client & Bank Details */}
+            <div className="space-y-6">
+              <div className="glass-panel p-6 rounded-3xl space-y-3 flex flex-col justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 pb-3 border-b border-borderClr/30">
+                    <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-txtPrimary">Terms & Notes for Client</h3>
+                      <p className="text-[10px] text-txtSecondary mt-0.5">Specify payment terms, delivery timelines, or custom client notes</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-txtPrimary">Terms & Notes for Client</h3>
-                    <p className="text-[10px] text-txtSecondary mt-0.5">Specify payment terms, delivery timelines, or custom client notes</p>
-                  </div>
+
+                  <textarea
+                    rows={4}
+                    placeholder="e.g. 50% advance required before production begins. Proposal valid for 15 days from issue date."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="w-full px-4 py-3 text-xs rounded-2xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 transition-colors font-medium leading-relaxed"
+                  />
                 </div>
 
-                <textarea
-                  rows={5}
-                  placeholder="e.g. 50% advance required before production begins. Proposal valid for 15 days from issue date."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-4 py-3 text-xs rounded-2xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 transition-colors font-medium leading-relaxed"
-                />
+                <div className="p-3 bg-hoverBg/40 rounded-2xl border border-borderClr/30 text-[11px] text-txtSecondary font-medium">
+                  <p>💡 <span className="font-bold text-txtPrimary">Tip:</span> These terms will automatically render on the bottom of the printed A4 quotation document.</p>
+                </div>
               </div>
 
-              <div className="p-3 bg-hoverBg/40 rounded-2xl border border-borderClr/30 text-[11px] text-txtSecondary font-medium">
-                <p>💡 <span className="font-bold text-txtPrimary">Tip:</span> These terms will automatically render on the bottom of the printed A4 quotation document.</p>
-              </div>
+              {/* Bank Details & UPI QR Code Card */}
+              <BankDetailsCard />
             </div>
 
             {/* Right 6-col: Payment Summary Card */}
@@ -214,9 +238,14 @@ export default function CreateQuotationPage() {
         quotationNumber={quotationNumber}
         issueDate={issueDate}
         validUntil={validUntil}
-        customerName={customerName}
+        companyName={companyName}
+        contactPerson={contactPerson}
+        customerName={customerName || contactPerson || companyName}
         customerEmail={customerEmail}
         customerPhone={customerPhone}
+        customerAddress={customerAddress}
+        customerGstin={customerGstin}
+        placeOfSupply={placeOfSupply}
         items={items}
         subtotal={subtotal}
         taxAmount={taxAmount}

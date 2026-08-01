@@ -18,7 +18,7 @@ export const Badge: React.FC<BadgeProps> = ({
     success: 'bg-success-50 text-success-700 border-success-100',
     warning: 'bg-warning-50 text-warning-700 border-warning-100',
     danger: 'bg-danger-50 text-danger-700 border-danger-100',
-    info: 'bg-blue-50 text-blue-700 border-blue-100',
+    info: 'bg-primary/10 text-primary border-primary/20',
   };
 
   const dotColors = {
@@ -26,7 +26,7 @@ export const Badge: React.FC<BadgeProps> = ({
     success: 'bg-success-600',
     warning: 'bg-warning-600',
     danger: 'bg-danger-600',
-    info: 'bg-blue-600',
+    info: 'bg-primary',
   };
 
   return (

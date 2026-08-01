@@ -16,9 +16,14 @@ export interface QuotationItem {
 export interface Quotation {
   id: string;
   quotationNumber: string;
+  companyName?: string;
+  contactPerson?: string;
   customerName: string;
   customerEmail: string;
   customerPhone?: string;
+  customerAddress?: string;
+  customerGstin?: string;
+  placeOfSupply?: string;
   issueDate: string;
   validUntil: string;
   status: QuotationStatus;

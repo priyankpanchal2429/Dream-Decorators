@@ -48,17 +48,16 @@ const item = {
 export default function DashboardPage() {
   return (
     <AppShell>
-      <div className="min-h-screen bg-dashboard-gradient pb-10">
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
-          <DashboardHeader />
-        </motion.div>
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: "easeOut" }}>
+        <DashboardHeader />
+      </motion.div>
 
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-6 xl:grid-cols-12 gap-6 mt-6 px-4 md:px-8 max-w-page mx-auto"
-          variants={container}
-          initial="hidden"
-          animate="show"
-        >
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-6 xl:grid-cols-12 gap-6 mt-6"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
           {/* Row 1: KPIs */}
           <motion.div variants={item} className="col-span-1 md:col-span-2 xl:col-span-4">
             <SummaryCard
@@ -106,21 +105,25 @@ export default function DashboardPage() {
             />
           </motion.div>
 
-          {/* Row 4: Invoice Due & Best Selling */}
-          <motion.div variants={item} className="col-span-1 md:col-span-4 xl:col-span-8">
+          {/* Row 4: Sales Invoice Due */}
+          <motion.div variants={item} className="col-span-1 md:col-span-6 xl:col-span-12">
             <InvoiceDueWidget
               title="Sales Invoice Due"
               partyLabel="Customer"
               invoices={mockSalesInvoiceDue}
             />
           </motion.div>
-          <motion.div variants={item} className="col-span-1 md:col-span-2 xl:col-span-4 flex flex-col gap-6">
+
+          {/* Row 5: Best Selling Products & Low Stock Alerts */}
+          <motion.div variants={item} className="col-span-1 md:col-span-3 xl:col-span-6">
             <ProductWidgetCard
               title="Best Selling Products"
               subtitle="Top performers"
               items={mockBestSellingProducts}
               variant="best-selling"
             />
+          </motion.div>
+          <motion.div variants={item} className="col-span-1 md:col-span-3 xl:col-span-6">
             <ProductWidgetCard
               title="Low Stock Alerts"
               subtitle="Requires immediate attention"
@@ -129,7 +132,6 @@ export default function DashboardPage() {
             />
           </motion.div>
         </motion.div>
-      </div>
     </AppShell>
   );
 }

@@ -23,6 +23,12 @@
     --color-txt-primary: #111827;
     --color-txt-secondary: #6B7280;
 
+    /* Primary Accent (Light Mode) */
+    --color-primary: #1C47C5;
+    --color-primary-hover: #1539A3;
+    --color-primary-light: #EEF2FF;
+    --color-primary-glow: rgba(28, 71, 197, 0.05);
+
     /* Sidebar */
     --color-sidebar-bg: #FFFFFF;
     --color-sidebar-hover: #F3F4F6;
@@ -39,6 +45,12 @@
     --color-hover-bg: rgba(39, 39, 42, 0.4); /* zinc-800 */
     --color-table-header-bg: rgba(24, 24, 27, 0.6);
 
+    /* Primary Accent (Dark Mode: Emerald/Teal — ZERO BLUE) */
+    --color-primary: #10B981;
+    --color-primary-hover: #059669;
+    --color-primary-light: rgba(16, 185, 129, 0.15);
+    --color-primary-glow: rgba(16, 185, 129, 0.1);
+
     /* Tailwind Gray Overrides (Dark) */
     --color-gray-50: rgba(24, 24, 27, 0.4);
     --color-gray-100: rgba(39, 39, 42, 0.4);
@@ -51,7 +63,7 @@
     --color-sidebar-bg: #09090b;
     --color-sidebar-hover: #18181b;
     --color-sidebar-active-bg: #27272a;
-    --color-sidebar-active-text: #FAFAFA;
+    --color-sidebar-active-text: #10B981;
   }
 }
 
@@ -63,12 +75,7 @@
     @apply shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)];
   }
   .bg-dashboard-gradient {
-    background: radial-gradient(circle at top right, rgba(28, 71, 197, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at bottom left, rgba(28, 71, 197, 0.03) 0%, transparent 40%);
-  }
-  .dark .bg-dashboard-gradient {
-    background: radial-gradient(circle at top right, rgba(28, 71, 197, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at bottom left, rgba(28, 71, 197, 0.1) 0%, transparent 40%);
+    background-color: transparent;
   }
 }
 

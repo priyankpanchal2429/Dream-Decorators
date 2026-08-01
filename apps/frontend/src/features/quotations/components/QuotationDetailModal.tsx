@@ -5,6 +5,7 @@ import { X, Printer, Send, FileText, CheckCircle } from 'lucide-react';
 import { Quotation } from '../types';
 import { formatINR } from '../../dashboard/constants';
 import { QuotationPreviewModal } from './QuotationPreviewModal';
+import { BankDetailsCard } from './BankDetailsCard';
 
 interface QuotationDetailModalProps {
   quotation: Quotation | null;
@@ -58,6 +59,9 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
                 {quotation.customerPhone && (
                   <p className="text-[10px] text-txtSecondary mt-0.5">{quotation.customerPhone}</p>
                 )}
+                {quotation.customerAddress && (
+                  <p className="text-[10px] text-txtSecondary mt-0.5 font-medium">{quotation.customerAddress}</p>
+                )}
               </div>
             </div>
 
@@ -78,7 +82,7 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
                     {quotation.items.map((item) => (
                       <tr key={item.id}>
                         <td className="px-4 py-3 font-semibold text-txtPrimary">{item.description}</td>
-                        <td className="px-4 py-3 text-center text-txtSecondary font-medium">{item.quantity}</td>
+                        <td className="px-4 py-3 text-center text-txtSecondary font-medium font-mono">{item.quantity} {item.uom || 'NOS'}</td>
                         <td className="px-4 py-3 text-right text-txtPrimary font-medium">{formatINR(item.unitPrice)}</td>
                         <td className="px-4 py-3 text-right text-txtPrimary font-bold">{formatINR(item.total)}</td>
                       </tr>
@@ -117,6 +121,9 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
                 <p className="text-xs text-txtPrimary mt-1">{quotation.notes}</p>
               </div>
             )}
+
+            {/* Bank Details & UPI QR Code */}
+            <BankDetailsCard />
           </div>
 
           {/* Footer Actions */}

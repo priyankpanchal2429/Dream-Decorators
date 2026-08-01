@@ -80,17 +80,14 @@ export const VendorFormModal: React.FC<VendorFormModalProps> = ({ isOpen, onClos
           <label className="block text-[11px] font-bold text-txtSecondary uppercase tracking-wider mb-1">
             Vendor / Company Name *
           </label>
-          <div className="relative">
-            <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-            <input
-              type="text"
-              required
-              placeholder="e.g. Gujarat Teak Traders"
-              value={vendorName}
-              onChange={(e) => setVendorName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
-            />
-          </div>
+          <input
+            type="text"
+            required
+            placeholder="e.g. Gujarat Teak Traders"
+            value={vendorName}
+            onChange={(e) => setVendorName(e.target.value)}
+            className="w-full px-3.5 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -115,16 +112,13 @@ export const VendorFormModal: React.FC<VendorFormModalProps> = ({ isOpen, onClos
             <label className="block text-[11px] font-bold text-txtSecondary uppercase tracking-wider mb-1">
               Contact Person
             </label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-              <input
-                type="text"
-                placeholder="e.g. Ramesh Patel"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="e.g. Ramesh Patel"
+              value={contactPerson}
+              onChange={(e) => setContactPerson(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
+            />
           </div>
         </div>
 
@@ -133,32 +127,26 @@ export const VendorFormModal: React.FC<VendorFormModalProps> = ({ isOpen, onClos
             <label className="block text-[11px] font-bold text-txtSecondary uppercase tracking-wider mb-1">
               Phone Number
             </label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-              <input
-                type="text"
-                placeholder="+91 98000 00000"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="+91 98000 00000"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
+            />
           </div>
 
           <div>
             <label className="block text-[11px] font-bold text-txtSecondary uppercase tracking-wider mb-1">
               Email Address
             </label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-              <input
-                type="email"
-                placeholder="vendor@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="vendor@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-amber-500/50 font-bold"
+            />
           </div>
         </div>
 
