@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { ShoppingBag, Building2 } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { PurchaseInvoice } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface PurchaseFormModalProps {
   isOpen: boolean;
@@ -30,6 +32,17 @@ export const PurchaseFormModal: React.FC<PurchaseFormModalProps> = ({ isOpen, on
       totalAmount: numAmount,
       amount: numAmount,
       status,
+    });
+
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: 'Purchase Order Created',
+      message: `PO for ${vendorName} of ₹${numAmount.toLocaleString('en-IN')} has been raised.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'New Purchase Order',
+      message: `Purchase order raised with ${vendorName} for ₹${numAmount.toLocaleString('en-IN')}.`,
+      type: 'success',
     });
 
     setAmount('');

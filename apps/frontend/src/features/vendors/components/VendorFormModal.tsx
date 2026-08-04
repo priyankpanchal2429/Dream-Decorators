@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Building2, User, Phone, Mail } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { Vendor } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface VendorFormModalProps {
   isOpen: boolean;
@@ -37,6 +39,17 @@ export const VendorFormModal: React.FC<VendorFormModalProps> = ({ isOpen, onClos
       payable: parseFloat(openingBalance) || 0,
       totalSpend: 0,
       status: 'ACTIVE',
+    });
+
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: 'Supplier Registered',
+      message: `${vendorName} has been added to the vendor directory.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'New Vendor Registered',
+      message: `${vendorName} added to vendor directory.`,
+      type: 'info',
     });
 
     setVendorName('');

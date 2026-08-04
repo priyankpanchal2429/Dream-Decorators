@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Truck, User } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { DeliveryChallan } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface ChallanFormModalProps {
   isOpen: boolean;
@@ -29,6 +31,17 @@ export const ChallanFormModal: React.FC<ChallanFormModalProps> = ({ isOpen, onCl
       dispatchDate,
       itemCount: parseInt(itemCount) || 5,
       status,
+    });
+
+    useToastStore.getState().addToast({
+      type: 'info',
+      title: 'Delivery Challan Generated',
+      message: `Dispatch note for ${customerName} issued successfully.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'Challan Dispatched',
+      message: `Delivery challan for ${customerName} has been generated and dispatched.`,
+      type: 'info',
     });
 
     setCustomerName('');

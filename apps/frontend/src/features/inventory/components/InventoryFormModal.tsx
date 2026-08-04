@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Package } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { InventoryItem } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface InventoryFormModalProps {
   isOpen: boolean;
@@ -39,6 +41,18 @@ export const InventoryFormModal: React.FC<InventoryFormModalProps> = ({ isOpen, 
       unitPrice: price,
       totalValue: qty * price,
       status: qty === 0 ? 'OUT_OF_STOCK' : qty <= (parseInt(reorderLevel) || 10) ? 'LOW_STOCK' : 'IN_STOCK',
+    });
+
+    const itemTitle = name || 'New Stock Item';
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: 'Stock Item Added',
+      message: `${itemTitle} has been added to inventory.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'Inventory Updated',
+      message: `${itemTitle} added to stock register.`,
+      type: 'success',
     });
 
     setName('');

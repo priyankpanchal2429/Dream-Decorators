@@ -65,6 +65,7 @@ export const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       message: `${clientTitle} profile updated in system directory.`,
       type: 'success',
     });
+    onClose();
   };
 
   return (

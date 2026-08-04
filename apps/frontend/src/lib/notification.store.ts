@@ -18,33 +18,62 @@ interface NotificationState {
   removeNotification: (id: string) => void;
 }
 
+// ─── Persistence Helpers ────────────────────────────────────────────────────
+
+const STORAGE_KEY = 'dd-notifications';
+
+/** Seed data shown only on first-ever visit (when localStorage has no entry). */
+const SEED_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: 'notif-1',
+    title: 'Invoice INV-2026-001 Approved',
+    message: 'Client Aarav Sharma cleared outstanding balance of ₹42,000.',
+    timestamp: '10 mins ago',
+    type: 'success',
+    read: false,
+  },
+  {
+    id: 'notif-2',
+    title: 'Low Stock Alert',
+    message: 'Teak Wood Chair Frame is below reorder level (8 units remaining).',
+    timestamp: '25 mins ago',
+    type: 'warning',
+    read: false,
+  },
+  {
+    id: 'notif-3',
+    title: 'New Vendor Registered',
+    message: 'Royal Woodcrafts added to vendor directory.',
+    timestamp: '1 hour ago',
+    type: 'info',
+    read: false,
+  },
+];
+
+function loadFromStorage(): NotificationItem[] {
+  if (typeof window === 'undefined') return SEED_NOTIFICATIONS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw === null) return SEED_NOTIFICATIONS; // first visit — show seeds
+    return JSON.parse(raw) as NotificationItem[];
+  } catch {
+    return SEED_NOTIFICATIONS;
+  }
+}
+
+function saveToStorage(notifications: NotificationItem[]): void {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+  } catch {
+    // Silently ignore storage quota errors
+  }
+}
+
+// ─── Store ──────────────────────────────────────────────────────────────────
+
 export const useNotificationStore = create<NotificationState>((set) => ({
-  notifications: [
-    {
-      id: 'notif-1',
-      title: 'Invoice INV-2026-001 Approved',
-      message: 'Client Aarav Sharma cleared outstanding balance of ₹42,000.',
-      timestamp: '10 mins ago',
-      type: 'success',
-      read: false,
-    },
-    {
-      id: 'notif-2',
-      title: 'Low Stock Alert',
-      message: 'Teak Wood Chair Frame is below reorder level (8 units remaining).',
-      timestamp: '25 mins ago',
-      type: 'warning',
-      read: false,
-    },
-    {
-      id: 'notif-3',
-      title: 'New Vendor Registered',
-      message: 'Royal Woodcrafts added to vendor directory.',
-      timestamp: '1 hour ago',
-      type: 'info',
-      read: false,
-    },
-  ],
+  notifications: loadFromStorage(),
 
   addNotification: (item) => {
     const newNotif: NotificationItem = {
@@ -53,25 +82,38 @@ export const useNotificationStore = create<NotificationState>((set) => ({
       timestamp: 'Just now',
       read: false,
     };
-    set((state) => ({ notifications: [newNotif, ...state.notifications] }));
+    set((state) => {
+      const updated = [newNotif, ...state.notifications];
+      saveToStorage(updated);
+      return { notifications: updated };
+    });
   },
 
   markAsRead: (id) =>
-    set((state) => ({
-      notifications: state.notifications.map((n) =>
+    set((state) => {
+      const updated = state.notifications.map((n) =>
         n.id === id ? { ...n, read: true } : n
-      ),
-    })),
+      );
+      saveToStorage(updated);
+      return { notifications: updated };
+    }),
 
   markAllAsRead: () =>
-    set((state) => ({
-      notifications: state.notifications.map((n) => ({ ...n, read: true })),
-    })),
+    set((state) => {
+      const updated = state.notifications.map((n) => ({ ...n, read: true }));
+      saveToStorage(updated);
+      return { notifications: updated };
+    }),
 
-  clearAll: () => set({ notifications: [] }),
+  clearAll: () => {
+    saveToStorage([]);
+    set({ notifications: [] });
+  },
 
   removeNotification: (id) =>
-    set((state) => ({
-      notifications: state.notifications.filter((n) => n.id !== id),
-    })),
+    set((state) => {
+      const updated = state.notifications.filter((n) => n.id !== id);
+      saveToStorage(updated);
+      return { notifications: updated };
+    }),
 }));

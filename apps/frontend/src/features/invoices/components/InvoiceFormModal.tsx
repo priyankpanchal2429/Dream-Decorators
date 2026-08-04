@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Receipt, User } from 'lucide-react';
 import { Drawer } from '@/components/ui/Drawer';
 import { SalesInvoice } from '../types';
+import { useToastStore } from '@/lib/toast.store';
+import { useNotificationStore } from '@/lib/notification.store';
 
 interface InvoiceFormModalProps {
   isOpen: boolean;
@@ -32,6 +34,18 @@ export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({ isOpen, onCl
       totalAmount: numAmount,
       balanceDue: status === 'PAID' ? 0 : status === 'PARTIAL' ? Math.round(numAmount * 0.4) : numAmount,
       status,
+    });
+
+    const invoiceNum = `INV-2026-${Math.floor(100 + Math.random() * 900)}`;
+    useToastStore.getState().addToast({
+      type: 'success',
+      title: 'Invoice Created',
+      message: `Sales invoice for ${customerName} generated successfully.`,
+    });
+    useNotificationStore.getState().addNotification({
+      title: 'New Invoice Raised',
+      message: `Invoice for ${customerName} of ₹${numAmount.toLocaleString('en-IN')} has been created.`,
+      type: 'success',
     });
 
     setItemDescription('');
