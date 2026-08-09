@@ -19,23 +19,53 @@ export default function CreateQuotationPage() {
   const fifteenDaysLater = new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
 
   const [companyName, setCompanyName] = useState('');
-  const [contactPerson, setContactPerson] = useState('');
-  const [customerName, setCustomerName] = useState('');
+  const [contactPerson, setContactPerson] = useState('Naitik Bhai');
+  const [customerName, setCustomerName] = useState('Naitik Bhai');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
   const [customerGstin, setCustomerGstin] = useState('');
-  const [placeOfSupply, setPlaceOfSupply] = useState('');
-  const [quotationNumber, setQuotationNumber] = useState(`QT-2026-${Math.floor(100 + Math.random() * 900)}`);
-  const [issueDate, setIssueDate] = useState(today);
-  const [validUntil, setValidUntil] = useState(fifteenDaysLater);
+  const [placeOfSupply, setPlaceOfSupply] = useState('24-Gujarat');
+  const [financialYear, setFinancialYear] = useState('26-27');
+  const [quotationNumber, setQuotationNumber] = useState('0001');
+  const [issueDate, setIssueDate] = useState('2026-01-07');
+  const [validUntil, setValidUntil] = useState('2026-01-22');
   const [notes, setNotes] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  // Line Items State - Blank row by default
+  const fullQuotationNumber = useMemo(() => {
+    const num = quotationNumber.trim() || '0001';
+    const fy = financialYear.trim() || '26-27';
+    return `DD-${num}/${fy}`;
+  }, [quotationNumber, financialYear]);
+
+  // Line Items State - Pre-filled from vendor quotation (SVR Furnitech - Naitik Bhai, dated 07.01.2026)
   const [items, setItems] = useState<QuotationItem[]>([
-    { id: '1', description: '', itemNotes: '', hsnCode: '', quantity: '' as any, uom: 'NOS', unitPrice: '' as any, discount: '' as any, taxPercent: '' as any, total: 0 },
+    // === CURTAIN ===
+    { id: '1', description: 'Living Room Main Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 10.5, uom: 'MTR', unitPrice: 838, discount: 2200, taxPercent: 0, total: 6599 },
+    { id: '2', description: 'Living Room Sheer Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 10.5, uom: 'MTR', unitPrice: 298, discount: 782, taxPercent: 0, total: 2347 },
+    { id: '3', description: 'G.Floor Fabric Zebra', itemNotes: 'Curtain', hsnCode: '', quantity: 29, uom: 'SQFT', unitPrice: 240, discount: 1740, taxPercent: 0, total: 5220 },
+    { id: '4', description: 'Guest Room Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 13.75, uom: 'MTR', unitPrice: 463, discount: 1592, taxPercent: 0, total: 4775 },
+    { id: '5', description: 'Children Room Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 20.25, uom: 'MTR', unitPrice: 672, discount: 3402, taxPercent: 0, total: 10206 },
+    { id: '6', description: '1st Floor Front Room Main Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 32, uom: 'MTR', unitPrice: 672, discount: 5376, taxPercent: 0, total: 16128 },
+    { id: '7', description: '1st Floor Front Room Sheer Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 32, uom: 'MTR', unitPrice: 298, discount: 2384, taxPercent: 0, total: 7152 },
+    // === TRACK & STITCHING ===
+    { id: '8', description: 'Black Out Aster', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 76.5, uom: 'MTR', unitPrice: 140, discount: 0, taxPercent: 0, total: 10710 },
+    { id: '9', description: 'Curtain Stitching', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 37, uom: 'PCS', unitPrice: 130, discount: 0, taxPercent: 0, total: 4810 },
+    { id: '10', description: 'Channel', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 52, uom: 'PCS', unitPrice: 130, discount: 0, taxPercent: 0, total: 6760 },
+    { id: '11', description: 'Curtain Feeting', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 9, uom: 'PCS', unitPrice: 250, discount: 0, taxPercent: 0, total: 2250 },
+    // === BED BACK ===
+    { id: '12', description: 'G.Floor Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
+    { id: '13', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 992, discount: 620, taxPercent: 0, total: 1860 },
+    { id: '14', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 962, discount: 722, taxPercent: 0, total: 2165 },
+    { id: '15', description: 'Children Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
+    { id: '16', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 965, discount: 603, taxPercent: 0, total: 1809 },
+    { id: '17', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 1213, discount: 910, taxPercent: 0, total: 2729 },
+    { id: '18', description: '1st Floor Front Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
+    { id: '19', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 1213, discount: 758, taxPercent: 0, total: 2274 },
+    { id: '20', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 962, discount: 722, taxPercent: 0, total: 2165 },
+    { id: '21', description: 'Delivery Charges', itemNotes: '', hsnCode: '', quantity: 1, uom: 'NOS', unitPrice: 2000, discount: 0, taxPercent: 0, total: 2000 },
   ]);
 
   // Dynamic Math
@@ -91,7 +121,7 @@ export default function CreateQuotationPage() {
 
   // Submit Actions
   const handleSaveDraft = () => {
-    alert(`Success! Quotation ${quotationNumber} saved as DRAFT.`);
+    alert(`Success! Quotation ${fullQuotationNumber} saved as DRAFT.`);
     router.push('/quotations');
   };
 
@@ -100,7 +130,7 @@ export default function CreateQuotationPage() {
       alert('Please fill in the Client Name and Client Email before issuing.');
       return;
     }
-    alert(`🎉 Success! Quotation ${quotationNumber} (₹${grandTotal.toLocaleString('en-IN')}) has been generated and issued to ${customerName} (${customerEmail})!`);
+    alert(`🎉 Success! Quotation ${fullQuotationNumber} (₹${grandTotal.toLocaleString('en-IN')}) has been generated and issued to ${customerName} (${customerEmail})!`);
     router.push('/quotations');
   };
 
@@ -160,6 +190,8 @@ export default function CreateQuotationPage() {
               setCustomerGstin={setCustomerGstin}
               placeOfSupply={placeOfSupply}
               setPlaceOfSupply={setPlaceOfSupply}
+              financialYear={financialYear}
+              setFinancialYear={setFinancialYear}
               quotationNumber={quotationNumber}
               setQuotationNumber={setQuotationNumber}
               issueDate={issueDate}
@@ -235,7 +267,7 @@ export default function CreateQuotationPage() {
       <QuotationPreviewModal
         isOpen={isPreviewOpen}
         onClose={() => setIsPreviewOpen(false)}
-        quotationNumber={quotationNumber}
+        quotationNumber={fullQuotationNumber}
         issueDate={issueDate}
         validUntil={validUntil}
         companyName={companyName}
