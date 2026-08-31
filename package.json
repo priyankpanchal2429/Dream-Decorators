@@ -15,8 +15,11 @@
     "lint": "npm run lint --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,json,md}\""
   },
-  "devDependencies": {
-    "prettier": "^3.2.5",
+  "dependencies": {
+    "@types/node": "^20.12.12",
     "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "prettier": "^3.2.5"
   }
 }
