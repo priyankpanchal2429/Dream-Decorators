@@ -45,8 +45,10 @@ async function main() {
 
   const superAdmin = await prisma.user.create({
     data: {
+      username: 'admin',
       email: 'admin@dreamdecorators.com',
       password: passwordHash,
+      name: 'Priyank Panchal',
       firstName: 'Priyank',
       lastName: 'Panchal',
       role: UserRole.SUPER_ADMIN,
@@ -56,8 +58,10 @@ async function main() {
 
   const salesExec = await prisma.user.create({
     data: {
+      username: 'sales',
       email: 'sales@dreamdecorators.com',
       password: passwordHash,
+      name: 'Rahul Sharma',
       firstName: 'Rahul',
       lastName: 'Sharma',
       role: UserRole.SALES_EXECUTIVE,

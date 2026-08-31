@@ -100,10 +100,12 @@ model FinancialYear {
 
 model User {
   id         String   @id @default(uuid())
-  email      String   @unique
+  username   String   @unique
+  email      String?  @unique
   password   String
-  firstName  String
-  lastName   String
+  name       String
+  firstName  String?
+  lastName   String?
   role       UserRole @default(SALES_EXECUTIVE)
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
