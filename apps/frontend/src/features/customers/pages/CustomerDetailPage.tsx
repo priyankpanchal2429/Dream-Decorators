@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Customer } from '../types';
-import { AppShell } from '@/components/layout/AppShell';
 import { Breadcrumb } from '@/components/layout/Breadcrumb/Breadcrumb';
 import { PageHeader } from '@/components/layout/PageContainer/PageHeader';
 import { Card, StatCard } from '@/components/card';
@@ -11,6 +11,11 @@ import { Button } from '@/components/button/Button';
 import { Tabs } from '@/components/common';
 import { formatINR } from '@/features/dashboard/constants';
 import { ArrowLeft, Building2, MapPin, Phone, Mail, FileText, CreditCard, ShieldAlert, Layers } from 'lucide-react';
+import {
+  pageHeaderVariants,
+  staggerContainerVariants,
+  springItemVariants,
+} from '@/config/animations';
 
 interface CustomerDetailPageProps {
   customer: Customer;
@@ -21,66 +26,85 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({ customer
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <AppShell>
-      <div className="mb-2">
-        <Button variant="ghost" size="sm" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" />}>
-          Back to Customer Directory
-        </Button>
-      </div>
-
-      <Breadcrumb items={[{ label: 'Customers', href: '#' }, { label: customer.customerName || customer.name || 'Client' }]} />
-
-      <PageHeader
-        title={customer.customerName || customer.name || 'Client'}
-        description={`Code: ${customer.customerCode} • Type: ${customer.customerType}`}
-        showFilters={false}
+    <div className="space-y-6 pb-12">
+      <motion.div
+        variants={pageHeaderVariants}
+        initial="hidden"
+        animate="show"
       >
-        <div className="flex items-center gap-2 pt-2">
-          <StatusBadge status={customer.status === 'BLOCKED' ? 'CANCELLED' : customer.status} />
-          {customer.gstNumber && (
-            <span className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded border border-borderClr text-txtPrimary">
-              GSTIN: {customer.gstNumber}
-            </span>
-          )}
+        <div className="mb-2">
+          <Button variant="ghost" size="sm" onClick={onBack} leftIcon={<ArrowLeft className="h-4 w-4" />}>
+            Back to Customer Directory
+          </Button>
         </div>
-      </PageHeader>
 
-      <div className="space-y-6">
+        <Breadcrumb items={[{ label: 'Customers', href: '#' }, { label: customer.customerName || customer.name || 'Client' }]} />
+
+        <PageHeader
+          title={customer.customerName || customer.name || 'Client'}
+          description={`Code: ${customer.customerCode} • Type: ${customer.customerType}`}
+          showFilters={false}
+        >
+          <div className="flex items-center gap-2 pt-2">
+            <StatusBadge status={customer.status === 'BLOCKED' ? 'CANCELLED' : customer.status} />
+            {customer.gstNumber && (
+              <span className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded border border-borderClr text-txtPrimary">
+                GSTIN: {customer.gstNumber}
+              </span>
+            )}
+          </div>
+        </PageHeader>
+      </motion.div>
+
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-6"
+      >
         {/* ROW 1: Summary Metric Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            title="Total Outstanding"
-            value={formatINR(customer.outstandingAmount ?? customer.outstanding ?? 0)}
-            subtitle="Current Unpaid Balance"
-            icon={<CreditCard className="h-5 w-5" />}
-          />
-          <StatCard
-            title="Credit Limit"
-            value={formatINR(customer.creditLimit ?? 0)}
-            subtitle="Approved Credit Window"
-            icon={<ShieldAlert className="h-5 w-5" />}
-          />
-          <StatCard
-            title="Opening Balance"
-            value={formatINR(customer.openingBalance ?? 0)}
-            subtitle="Carried Forward Balance"
-            icon={<FileText className="h-5 w-5" />}
-          />
+          <motion.div variants={springItemVariants}>
+            <StatCard
+              title="Total Outstanding"
+              value={formatINR(customer.outstandingAmount ?? customer.outstanding ?? 0)}
+              subtitle="Current Unpaid Balance"
+              icon={<CreditCard className="h-5 w-5" />}
+            />
+          </motion.div>
+          <motion.div variants={springItemVariants}>
+            <StatCard
+              title="Credit Limit"
+              value={formatINR(customer.creditLimit ?? 0)}
+              subtitle="Approved Credit Window"
+              icon={<ShieldAlert className="h-5 w-5" />}
+            />
+          </motion.div>
+          <motion.div variants={springItemVariants}>
+            <StatCard
+              title="Opening Balance"
+              value={formatINR(customer.openingBalance ?? 0)}
+              subtitle="Carried Forward Balance"
+              icon={<FileText className="h-5 w-5" />}
+            />
+          </motion.div>
         </div>
 
-        <Tabs
-          tabs={[
-            { id: 'overview', label: 'Overview & Address' },
-            { id: 'transactions', label: 'Transaction Slots (Sales, Quotations, Payments)' },
-            { id: 'timeline', label: 'Activity Timeline' },
-          ]}
-          activeTab={activeTab}
-          onChange={setActiveTab}
-        />
+        <motion.div variants={springItemVariants}>
+          <Tabs
+            tabs={[
+              { id: 'overview', label: 'Overview & Address' },
+              { id: 'transactions', label: 'Transaction Slots (Sales, Quotations, Payments)' },
+              { id: 'timeline', label: 'Activity Timeline' },
+            ]}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+          />
+        </motion.div>
 
         {/* Tab 1: Overview Details */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div variants={springItemVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
               <div className="pb-3 border-b border-borderClr mb-3 flex items-center justify-between">
                 <h3 className="text-xs font-bold text-txtPrimary">Contact Information</h3>
@@ -115,39 +139,43 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({ customer
                 <p className="text-[10px] text-txtSecondary">Country: {customer.billingAddress?.country || 'India'}</p>
               </div>
             </Card>
-          </div>
+          </motion.div>
         )}
 
         {/* Tab 2: Transaction Slots */}
         {activeTab === 'transactions' && (
-          <Card>
-            <div className="p-8 text-center text-xs text-txtSecondary">
-              <Layers className="h-8 w-8 text-primary mx-auto mb-2" />
-              <p className="font-bold text-txtPrimary text-sm">Transaction Slots Ready</p>
-              <p className="mt-1 max-w-sm mx-auto">
-                Quotations, Sales Invoices, Payments, and Delivery Challans will automatically surface here filtered by <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-primary">customer_id: {customer.id}</code>.
-              </p>
-            </div>
-          </Card>
+          <motion.div variants={springItemVariants}>
+            <Card>
+              <div className="p-8 text-center text-xs text-txtSecondary">
+                <Layers className="h-8 w-8 text-primary mx-auto mb-2" />
+                <p className="font-bold text-txtPrimary text-sm">Transaction Slots Ready</p>
+                <p className="mt-1 max-w-sm mx-auto">
+                  Quotations, Sales Invoices, Payments, and Delivery Challans will automatically surface here filtered by <code className="bg-gray-100 px-1 py-0.5 rounded font-mono text-primary">customer_id: {customer.id}</code>.
+                </p>
+              </div>
+            </Card>
+          </motion.div>
         )}
 
         {/* Tab 3: Timeline */}
         {activeTab === 'timeline' && (
-          <Card>
-            <h3 className="text-xs font-bold text-txtPrimary mb-3">Customer Audit & Activity Log</h3>
-            <div className="space-y-3 text-xs text-txtSecondary">
-              <div className="flex items-center justify-between border-b border-borderClr/60 pb-2">
-                <span>Customer Profile Created</span>
-                <span className="font-mono text-[10px]">{customer.createdAt}</span>
+          <motion.div variants={springItemVariants}>
+            <Card>
+              <h3 className="text-xs font-bold text-txtPrimary mb-3">Customer Audit & Activity Log</h3>
+              <div className="space-y-3 text-xs text-txtSecondary">
+                <div className="flex items-center justify-between border-b border-borderClr/60 pb-2">
+                  <span>Customer Profile Created</span>
+                  <span className="font-mono text-[10px]">{customer.createdAt}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-borderClr/60 pb-2">
+                  <span>Profile Details Updated</span>
+                  <span className="font-mono text-[10px]">{customer.updatedAt}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between border-b border-borderClr/60 pb-2">
-                <span>Profile Details Updated</span>
-                <span className="font-mono text-[10px]">{customer.updatedAt}</span>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         )}
-      </div>
-    </AppShell>
+      </motion.div>
+    </div>
   );
 };

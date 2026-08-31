@@ -3,23 +3,14 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Search, Plus, UserCheck, TrendingUp, AlertCircle, Phone, Mail, MapPin } from 'lucide-react';
-import { AppShell } from '@/components/layout/AppShell';
 import { Customer } from '../types';
 import { CustomerFormModal } from '../components/CustomerFormModal';
 import { formatINR } from '@/features/dashboard/constants';
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 260, damping: 20 } },
-};
+import {
+  pageHeaderVariants,
+  staggerContainerVariants,
+  springItemVariants,
+} from '@/config/animations';
 
 export default function CustomerListPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -106,112 +97,116 @@ export default function CustomerListPage() {
   const totalOutstanding = useMemo(() => customers.reduce((acc, c) => acc + (c.outstanding || c.outstandingAmount || 0), 0), [customers]);
 
   return (
-    <AppShell>
-      <div className="min-h-screen bg-dashboard-gradient pb-12">
-        <div className="px-4 md:px-8 max-w-page mx-auto space-y-6">
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: -15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderClr/30"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
-                <Users className="h-6 w-6" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Client Directory</h1>
-                <p className="text-xs text-txtSecondary mt-0.5">Manage customer accounts, billing details, and order history</p>
-              </div>
-            </div>
+    <div className="space-y-6 pb-12">
+      {/* Header */}
+      <motion.div
+        variants={pageHeaderVariants}
+        initial="hidden"
+        animate="show"
+        className="pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderClr/30"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
+            <Users className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Client Directory</h1>
+            <p className="text-xs text-txtSecondary mt-0.5">Manage customer accounts, billing details, and order history</p>
+          </div>
+        </div>
 
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
-            >
-              <Plus className="h-4 w-4" />
-              Add New Client
-            </button>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
+        >
+          <Plus className="h-4 w-4" />
+          Add New Client
+        </button>
+      </motion.div>
+
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="show"
+        className="space-y-6"
+      >
+        {/* Stats Bar */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Clients</p>
+              <h3 className="text-2xl font-black text-txtPrimary mt-1">{customers.length}</h3>
+            </div>
+            <div className="p-3 rounded-xl bg-primary/10 text-primary">
+              <UserCheck className="h-5 w-5" />
+            </div>
           </motion.div>
 
-          {/* Stats Bar */}
-          <motion.div variants={containerVariants} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Clients</p>
-                <h3 className="text-2xl font-black text-txtPrimary mt-1">{customers.length}</h3>
-              </div>
-              <div className="p-3 rounded-xl bg-primary/10 text-primary">
-                <UserCheck className="h-5 w-5" />
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Lifetime Revenue</p>
-                <h3 className="text-2xl font-black text-primary mt-1">{formatINR(totalRevenue)}</h3>
-              </div>
-              <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
-                <TrendingUp className="h-5 w-5" />
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Outstanding</p>
-                <h3 className="text-2xl font-black text-danger mt-1">{formatINR(totalOutstanding)}</h3>
-              </div>
-              <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
-                <AlertCircle className="h-5 w-5" />
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-              <div>
-                <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Active Accounts</p>
-                <h3 className="text-2xl font-black text-txtPrimary mt-1">
-                  {customers.filter((c) => c.status === 'ACTIVE').length}
-                </h3>
-              </div>
-              <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
-                <Users className="h-5 w-5" />
-              </div>
-            </motion.div>
+          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Lifetime Revenue</p>
+              <h3 className="text-2xl font-black text-primary mt-1">{formatINR(totalRevenue)}</h3>
+            </div>
+            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
+              <TrendingUp className="h-5 w-5" />
+            </div>
           </motion.div>
 
-          {/* Filter Bar */}
-          <div className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-              <input
-                type="text"
-                placeholder="Search by client name, email, phone, city..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
-              />
+          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Outstanding</p>
+              <h3 className="text-2xl font-black text-danger mt-1">{formatINR(totalOutstanding)}</h3>
             </div>
+            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
+              <AlertCircle className="h-5 w-5" />
+            </div>
+          </motion.div>
 
-            <div className="flex items-center gap-2 w-full md:w-auto">
-              {['ALL', 'ACTIVE', 'INACTIVE'].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setSelectedStatus(st)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    selectedStatus === st
-                      ? 'bg-primary text-white shadow-xs'
-                      : 'bg-hoverBg/50 text-txtSecondary hover:text-txtPrimary border border-borderClr/30'
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
+          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
+            <div>
+              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Active Accounts</p>
+              <h3 className="text-2xl font-black text-txtPrimary mt-1">
+                {customers.filter((c) => c.status === 'ACTIVE').length}
+              </h3>
             </div>
+            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
+              <Users className="h-5 w-5" />
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Filter Bar */}
+        <motion.div variants={springItemVariants} className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative w-full md:w-80">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
+            <input
+              type="text"
+              placeholder="Search by client name, email, phone, city..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
+            />
           </div>
 
-          {/* Customer Table */}
-          <div className="glass-panel rounded-3xl overflow-hidden">
+          <div className="flex items-center gap-2 w-full md:w-auto">
+            {['ALL', 'ACTIVE', 'INACTIVE'].map((st) => (
+              <button
+                key={st}
+                onClick={() => setSelectedStatus(st)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  selectedStatus === st
+                    ? 'bg-primary text-white shadow-xs'
+                    : 'bg-hoverBg/50 text-txtSecondary hover:text-txtPrimary border border-borderClr/30'
+                }`}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Customer Table */}
+        <motion.div variants={springItemVariants} className="glass-panel rounded-3xl overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -289,9 +284,8 @@ export default function CustomerListPage() {
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
 
       <CustomerFormModal
         isOpen={isModalOpen}
@@ -317,6 +311,6 @@ export default function CustomerListPage() {
           setIsModalOpen(false);
         }}
       />
-    </AppShell>
+    </div>
   );
 }

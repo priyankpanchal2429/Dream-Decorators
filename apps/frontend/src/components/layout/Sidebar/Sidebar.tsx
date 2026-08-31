@@ -19,7 +19,6 @@ import {
   ChevronRight,
   LogOut,
   Layers,
-  Palette,
   X,
 } from 'lucide-react';
 import { cn } from '@/utils/cn';
@@ -46,7 +45,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
     { title: 'Delivery Challan', href: '/delivery-challans', icon: <Truck className="h-5 w-5" /> },
     { title: 'Reports', href: '/reports', icon: <BarChart3 className="h-5 w-5" /> },
     { title: 'Settings', href: '/settings', icon: <Settings className="h-5 w-5" /> },
-    { title: 'Theme', href: '/theme', icon: <Palette className="h-5 w-5" /> },
   ];
 
   return (

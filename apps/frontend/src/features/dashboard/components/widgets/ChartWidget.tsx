@@ -25,6 +25,11 @@ const data = [
 ];
 
 export const ChartWidget: React.FC = () => {
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   return (
     <div className="glass-panel p-6 rounded-3xl h-full flex flex-col relative overflow-hidden group">
       {/* Background glow */}
@@ -49,7 +54,8 @@ export const ChartWidget: React.FC = () => {
       </div>
 
       <div className="flex-1 w-full h-[250px] relative z-10 mt-2">
-        <ResponsiveContainer width="100%" height="100%">
+        {isMounted ? (
+          <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={data}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
@@ -112,6 +118,11 @@ export const ChartWidget: React.FC = () => {
             />
           </AreaChart>
         </ResponsiveContainer>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-xs text-txtSecondary/50 animate-pulse">
+            Loading chart analytics...
+          </div>
+        )}
       </div>
     </div>
   );
