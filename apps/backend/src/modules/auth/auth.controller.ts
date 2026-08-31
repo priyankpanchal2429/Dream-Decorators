@@ -5,8 +5,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js';
 
 export class AuthController {
   static login = asyncHandler(async (req: Request, res: Response) => {
-    const { loginId, password } = req.body;
-    const result = await AuthService.login(loginId, password);
+    const result = await AuthService.login(req.body);
     return ApiResponse.success(res, 'Login successful', result);
   });
 
@@ -16,8 +15,7 @@ export class AuthController {
   });
 
   static forgotPassword = asyncHandler(async (req: Request, res: Response) => {
-    const { loginId, newPassword } = req.body;
-    const result = await AuthService.forgotPassword(loginId, newPassword);
+    const result = await AuthService.forgotPassword(req.body);
     return ApiResponse.success(res, result.message, result);
   });
 

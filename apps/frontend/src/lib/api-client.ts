@@ -5,7 +5,7 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
+  timeout: 60000, // 60s timeout to handle free cloud cold starts gracefully
 });
 
 apiClient.interceptors.request.use(
@@ -24,10 +24,13 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    const isTimeout = error.code === 'ECONNABORTED' || error.message?.includes('timeout');
     const customError = {
-      message: error.response?.data?.message || error.message || 'Something went wrong',
+      message: isTimeout
+        ? 'Server is waking up from sleep. Please wait a moment and try again.'
+        : error.response?.data?.message || error.message || 'Something went wrong',
       errors: error.response?.data?.errors || [],
-      statusCode: error.response?.status || 500,
+      statusCode: error.response?.status || (isTimeout ? 504 : 500),
     };
     return Promise.reject(customError);
   }

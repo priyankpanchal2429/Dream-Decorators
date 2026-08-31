@@ -5,8 +5,10 @@ import { env } from '../../config/env.config.js';
 import { ApiError } from '../../utils/ApiError.js';
 
 export class AuthService {
-  static async login(loginId: string, pass: string) {
-    const normalizedId = loginId.trim().toLowerCase();
+  static async login(data: { loginId?: string; email?: string; username?: string; password?: string }) {
+    const rawIdentifier = data.loginId || data.username || data.email || '';
+    const normalizedId = rawIdentifier.trim().toLowerCase();
+    const pass = data.password || '';
 
     const user = await prisma.user.findFirst({
       where: {
@@ -51,18 +53,26 @@ export class AuthService {
 
   static async signup(data: {
     name: string;
-    loginId: string;
+    loginId?: string;
+    username?: string;
+    email?: string;
     password: string;
     role?: UserRole;
   }) {
-    const normalizedUsername = data.loginId.trim().toLowerCase();
+    const rawId = data.loginId || data.username || data.email || '';
+    const normalizedUsername = rawId.trim().toLowerCase();
 
-    const existing = await prisma.user.findUnique({
-      where: { username: normalizedUsername },
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: normalizedUsername },
+          ...(data.email ? [{ email: data.email.toLowerCase() }] : []),
+        ],
+      },
     });
 
     if (existing) {
-      throw ApiError.conflict(`User ID '${data.loginId}' is already taken. Please choose another ID.`);
+      throw ApiError.conflict(`User ID '${rawId}' is already taken. Please choose another ID.`);
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -70,6 +80,7 @@ export class AuthService {
     const user = await prisma.user.create({
       data: {
         username: normalizedUsername,
+        email: data.email ? data.email.toLowerCase() : undefined,
         name: data.name.trim(),
         password: hashedPassword,
         role: data.role || UserRole.SALES_EXECUTIVE,
@@ -102,8 +113,9 @@ export class AuthService {
     };
   }
 
-  static async forgotPassword(loginId: string, newPass: string) {
-    const normalizedId = loginId.trim().toLowerCase();
+  static async forgotPassword(data: { loginId?: string; email?: string; username?: string; newPassword: string }) {
+    const rawId = data.loginId || data.username || data.email || '';
+    const normalizedId = rawId.trim().toLowerCase();
 
     const user = await prisma.user.findFirst({
       where: {
@@ -115,10 +127,10 @@ export class AuthService {
     });
 
     if (!user) {
-      throw ApiError.notFound(`No account found with User ID '${loginId}'`);
+      throw ApiError.notFound(`No account found with User ID '${rawId}'`);
     }
 
-    const hashedPassword = await bcrypt.hash(newPass, 10);
+    const hashedPassword = await bcrypt.hash(data.newPassword, 10);
 
     await prisma.user.update({
       where: { id: user.id },

@@ -38,8 +38,11 @@ export const useAuthStore = create<AuthState>()(
       login: async (loginId: string, pass: string) => {
         set({ isLoading: true, error: null });
         try {
+          const trimmedId = loginId.trim();
           const response: any = await apiClient.post('/auth/login', {
-            loginId: loginId.trim(),
+            loginId: trimmedId,
+            username: trimmedId,
+            email: trimmedId,
             password: pass,
           });
 
@@ -68,9 +71,12 @@ export const useAuthStore = create<AuthState>()(
       signup: async (name: string, loginId: string, pass: string) => {
         set({ isLoading: true, error: null });
         try {
+          const trimmedId = loginId.trim();
           const response: any = await apiClient.post('/auth/signup', {
             name: name.trim(),
-            loginId: loginId.trim(),
+            loginId: trimmedId,
+            username: trimmedId,
+            email: trimmedId.includes('@') ? trimmedId : undefined,
             password: pass,
           });
 
@@ -99,8 +105,11 @@ export const useAuthStore = create<AuthState>()(
       forgotPassword: async (loginId: string, newPass: string) => {
         set({ isLoading: true, error: null });
         try {
+          const trimmedId = loginId.trim();
           const response: any = await apiClient.post('/auth/forgot-password', {
-            loginId: loginId.trim(),
+            loginId: trimmedId,
+            username: trimmedId,
+            email: trimmedId,
             newPassword: newPass,
           });
           set({ isLoading: false });
