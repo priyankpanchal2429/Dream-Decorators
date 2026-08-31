@@ -1,0 +1,52 @@
+# ==========================================
+# Dream Decorators ERP - Frontend Dockerfile
+# Multi-stage Production Build (Next.js 14 Standalone)
+# ==========================================
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+# Copy package manifests
+COPY package.json package-lock.json ./
+COPY apps/frontend/package.json ./apps/frontend/
+COPY tsconfig.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy frontend source
+COPY apps/frontend ./apps/frontend
+
+# Build Next.js
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+RUN npm run build --workspace=@dream-decorators/frontend
+
+# ==========================================
+# Runner Stage
+# ==========================================
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+
+# Create non-root system user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy public assets & standalone build output
+COPY --from=builder /app/apps/frontend/public ./apps/frontend/public
+COPY --from=builder /app/apps/frontend/.next/standalone ./
+COPY --from=builder /app/apps/frontend/.next/static ./apps/frontend/.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "apps/frontend/server.js"]

@@ -1,0 +1,65 @@
+# ==========================================
+# Dream Decorators ERP - Backend Dockerfile
+# Multi-stage Production Build (Alpine Linux)
+# ==========================================
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install OpenSSL & build tools needed for Prisma
+RUN apk add --no-cache libc6-compat openssl openssl-dev
+
+# Copy package manifests
+COPY package.json package-lock.json ./
+COPY packages/database/package.json ./packages/database/
+COPY apps/backend/package.json ./apps/backend/
+COPY tsconfig.json ./
+
+# Install all dependencies (including devDependencies for build)
+RUN npm ci
+
+# Copy source files
+COPY packages/database ./packages/database
+COPY apps/backend ./apps/backend
+
+# Generate Prisma Client & Compile Database Package
+RUN npm run build --workspace=@dream-decorators/database
+
+# Compile Backend TypeScript
+RUN npm run build --workspace=@dream-decorators/backend
+
+# Prune dev dependencies for production
+RUN npm prune --production
+
+# ==========================================
+# Runner Stage
+# ==========================================
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+RUN apk add --no-cache openssl ca-certificates
+
+ENV NODE_ENV=production
+ENV PORT=5001
+
+# Create non-root system user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 dreamuser
+
+# Copy dependencies and build artifacts
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/database ./packages/database
+COPY --from=builder /app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=builder /app/apps/backend/dist ./apps/backend/dist
+
+# Create uploads directory with permissions
+RUN mkdir -p /app/apps/backend/uploads && \
+    chown -R dreamuser:nodejs /app
+
+USER dreamuser
+
+EXPOSE 5001
+
+CMD ["node", "apps/backend/dist/server.js"]

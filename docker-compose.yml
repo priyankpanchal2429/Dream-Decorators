@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. PostgreSQL Database Service
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: dream_decorators_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-dream_decorators_erp}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d dream_decorators_erp']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - erp_network
+
+  # ==========================================
+  # 2. Express ERP Backend Service
+  # ==========================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: dream_decorators_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5001
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-dream_decorators_erp}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-supersecret_jwt_key_dream_decorators_2026_prod_must_change}
+      JWT_EXPIRES_IN: 7d
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      UPLOAD_DIR: uploads
+      MAX_FILE_SIZE_MB: 10
+      LOG_LEVEL: info
+    ports:
+      - '5001:5001'
+    volumes:
+      - backend_uploads:/app/apps/backend/uploads
+    networks:
+      - erp_network
+
+  # ==========================================
+  # 3. Next.js ERP Frontend Service
+  # ==========================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: dream_decorators_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:5001/api/v1}
+    ports:
+      - '3000:3000'
+    networks:
+      - erp_network
+
+# ==========================================
+# Persistent Volumes & Networks
+# ==========================================
+volumes:
+  postgres_data:
+    driver: local
+  backend_uploads:
+    driver: local
+
+networks:
+  erp_network:
+    driver: bridge

@@ -11,6 +11,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(10, 'JWT Secret must be at least 10 chars'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   UPLOAD_DIR: z.string().default('uploads'),
+  MAX_FILE_SIZE_MB: z.string().transform(Number).default('10'),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
 });
 
