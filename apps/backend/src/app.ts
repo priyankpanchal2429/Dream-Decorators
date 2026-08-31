@@ -23,13 +23,24 @@ export const createApp = () => {
         ) {
           return callback(null, true);
         }
-        return callback(null, true); // Permissive in dev/staging; can be locked down with env
+        return callback(null, true); // Permissive in dev/staging
       },
       credentials: true,
     })
   );
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+  // Root Server Landing Page
+  app.get('/', (_req: Request, res: Response) => {
+    return ApiResponse.success(res, '🚀 Dream Decorators ERP Backend API Server is Live & Healthy', {
+      version: '1.0.0',
+      status: 'operational',
+      environment: env.NODE_ENV,
+      healthCheck: '/health',
+      apiBaseUrl: '/api/v1',
+    });
+  });
 
   // Health Check Endpoint
   app.get('/health', (_req: Request, res: Response) => {
@@ -44,8 +55,8 @@ export const createApp = () => {
   app.use('/api/v1', apiRouter);
 
   // Fallback 404 Route
-  app.use((_req: Request, res: Response) => {
-    return ApiResponse.error(res, 'Requested route not found', 404);
+  app.use((req: Request, res: Response) => {
+    return ApiResponse.error(res, `Requested route '${req.originalUrl}' not found on this server`, 404);
   });
 
   // Global Error Handler
