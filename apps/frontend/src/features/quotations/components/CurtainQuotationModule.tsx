@@ -28,8 +28,8 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
     {
       id: 'c-1',
       itemName: 'Living Room Main Curtain',
-      width: { feet: 8, inches: 0 }, // 96 inches
-      height: { feet: 4, inches: 0 }, // 48 inches
+      width: { feet: 8, inches: 0 },
+      height: { feet: 4, inches: 0 },
       totalWidthInches: 96,
       totalHeightInches: 48,
       fabricWidthsRequired: 5,
@@ -120,63 +120,54 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
   // Remove Item Row
   const handleRemoveItem = (id: string) => {
     if (items.length > 1) {
-      setItems((prev) => prev.filter((it) => it.id !== id));
+      setItems((prev) => prev.filter((i) => i.id !== id));
     }
   };
 
-  // Summary Totals Math
-  const summary = useMemo(() => {
-    const totalItems = items.length;
-    const totalMtrSum = items.reduce((acc, it) => acc + (it.totalMtr || 0), 0);
-    const subtotalSum = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
-    const discountSum = items.reduce((acc, it) => acc + (it.discountAmount || 0), 0);
-    const grandTotal = items.reduce((acc, it) => acc + (it.totalPrice || 0), 0);
-
-    return {
-      totalItems,
-      totalMtrSum,
-      subtotalSum,
-      discountSum,
-      grandTotal,
-    };
+  // Aggregate Totals
+  const { totalMeterage, totalAmount, totalDiscount, grandTotal } = useMemo(() => {
+    return items.reduce(
+      (acc, item) => ({
+        totalMeterage: acc.totalMeterage + item.totalMtr,
+        totalAmount: acc.totalAmount + item.subtotal,
+        totalDiscount: acc.totalDiscount + item.discountAmount,
+        grandTotal: acc.grandTotal + item.totalPrice,
+      }),
+      { totalMeterage: 0, totalAmount: 0, totalDiscount: 0, grandTotal: 0 }
+    );
   }, [items]);
 
-  // Convert Curtain Items to QuotationItems for main quotation builder
+  // Convert and export curtain items to standard quotation line items
   const handleImportToMainQuotation = () => {
     if (!onImportToQuotation) return;
 
-    const quotationItems: QuotationItem[] = items.map((cItem, idx) => ({
-      id: `curtain-${Date.now()}-${idx}`,
-      description: cItem.itemName || `Curtain Item #${idx + 1}`,
-      itemNotes: `Window: ${cItem.width.feet}ft ${cItem.width.inches}in (${cItem.totalWidthInches}") x ${cItem.height.feet}ft ${cItem.height.inches}in (${cItem.totalHeightInches}") | Fabric Widths: ${cItem.fabricWidthsRequired} | Total MTR: ${cItem.totalMtr}`,
-      hsnCode: '54075200',
-      quantity: cItem.totalMtr,
+    const quotationItems: QuotationItem[] = items.map((item) => ({
+      id: item.id,
+      description: item.itemName || 'Custom Pleated Curtain',
+      itemNotes: `Window Size: ${item.width.feet}'${item.width.inches}"(W) × ${item.height.feet}'${item.height.inches}"(H) • ${item.fabricWidthsRequired} Pleated Widths (${item.totalMtr} MTR)`,
+      quantity: item.totalMtr,
       uom: 'MTR',
-      unitPrice: cItem.perMtrPrice,
-      discount: cItem.discountAmount,
-      taxPercent: 0,
-      total: cItem.totalPrice,
+      unitPrice: item.perMtrPrice,
+      discount: item.discountAmount,
+      taxPercent: 12,
+      total: item.totalPrice,
     }));
 
     onImportToQuotation(quotationItems);
-    alert(`🎉 Successfully synced ${items.length} curtain fabric items (Total ${summary.totalMtrSum} MTR, ₹${summary.grandTotal.toLocaleString('en-IN')}) into your main quotation!`);
   };
 
   return (
-    <div className="glass-panel p-5 sm:p-6 rounded-3xl space-y-5 border border-primary/20 bg-gradient-to-br from-cardBg via-cardBg to-primary/5 shadow-xl">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-borderClr/30">
+    <div className="glass-panel p-5 rounded-3xl space-y-5 border border-primary/20 shadow-lg">
+      {/* Header with Title & Action Buttons */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-borderClr/30">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-xs">
-            <Scissors className="h-6 w-6" />
+          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-primary to-indigo-600 text-white shadow-md shadow-primary/20">
+            <Scissors className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-primary text-white uppercase tracking-wider flex items-center gap-1 shadow-xs">
-                <Sparkles className="h-3 w-3" /> Curtain Fabric Calculator
-              </span>
-              <span className="text-[10px] font-bold text-txtSecondary">
-                Finished Pleat: 20" per Width
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                <Sparkles className="h-2.5 w-2.5" /> Built-in Formula
               </span>
             </div>
             <h3 className="text-base font-black text-txtPrimary tracking-tight">Curtain Quotation Module</h3>
@@ -221,22 +212,22 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
             <tr className="bg-hoverBg/60 border-b border-borderClr/40 text-[10px] font-extrabold text-txtSecondary uppercase tracking-wider">
               <th className="px-2 py-3 text-center w-[3%]">#</th>
               <th className="px-3 py-3 text-left w-[26%]">ITEM NAME</th>
-              <th className="px-2 py-3 text-center w-[16%]">WINDOW WIDTH</th>
-              <th className="px-2 py-3 text-center w-[16%]">WINDOW HEIGHT</th>
+              <th className="px-2 py-3 text-center w-[15%]">WINDOW WIDTH</th>
+              <th className="px-2 py-3 text-center w-[15%]">WINDOW HEIGHT</th>
               <th className="px-2 py-3 text-center w-[9%]">TOTAL MTR</th>
               <th className="px-2 py-3 text-right w-[11%]">PER MTR PRICE (₹)</th>
-              <th className="px-2 py-3 text-right w-[10%]">DISCOUNT</th>
-              <th className="px-2 py-3 text-right w-[12%]">
-                <span className="text-xs font-black text-primary uppercase">TOTAL PRICE (₹)</span>
+              <th className="px-2 py-3 text-right w-[11%]">DISCOUNT</th>
+              <th className="px-2 py-3 text-right w-[10%]">
+                <span className="text-xs font-black text-primary uppercase">TOTAL (₹)</span>
               </th>
-              <th className="px-2 py-3 text-center w-[3%]"></th>
+              <th className="px-2 py-3 text-center w-[4%]"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-borderClr/20 text-xs">
             {items.map((item, idx) => (
               <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
                 {/* # */}
-                <td className="px-2 py-3 text-center font-bold text-txtSecondary align-top pt-4 text-[11px] w-[3%]">
+                <td className="px-2 py-3 text-center font-bold text-txtSecondary align-top pt-3 text-[11px] w-[3%]">
                   {idx + 1}
                 </td>
 
@@ -271,7 +262,7 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
                 </td>
 
                 {/* WINDOW WIDTH (Feet / Inches) */}
-                <td className="px-2 py-3 align-top w-[16%]">
+                <td className="px-2 py-3 align-top w-[15%]">
                   <FeetInchesInput
                     feet={item.width.feet}
                     inches={item.width.inches}
@@ -279,10 +270,13 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
                     onInchesChange={(inc) => updateCurtainItem(item.id, { width: { ...item.width, inches: inc } })}
                     hasError={item.totalWidthInches <= 0}
                   />
+                  <div className="text-[10px] text-center font-bold text-txtSecondary mt-1">
+                    {item.totalWidthInches}" ({item.fabricWidthsRequired} Widths)
+                  </div>
                 </td>
 
                 {/* WINDOW HEIGHT (Feet / Inches) */}
-                <td className="px-2 py-3 align-top w-[16%]">
+                <td className="px-2 py-3 align-top w-[15%]">
                   <FeetInchesInput
                     feet={item.height.feet}
                     inches={item.height.inches}
@@ -290,17 +284,20 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
                     onInchesChange={(inc) => updateCurtainItem(item.id, { height: { ...item.height, inches: inc } })}
                     hasError={item.totalHeightInches <= 0}
                   />
+                  <div className="text-[10px] text-center font-bold text-txtSecondary mt-1">
+                    {item.totalHeightInches}" Total Height
+                  </div>
                 </td>
 
-                {/* TOTAL MTR (CEILING Whole Number Badge) */}
-                <td className="px-2 py-3 text-center align-top pt-2.5 w-[9%]">
-                  <div className="p-2 rounded-xl bg-primary/10 border border-primary/20 flex flex-col items-center justify-center">
-                    <span className="text-sm font-black text-primary">
+                {/* TOTAL MTR (CEILING Whole Number Badge - Exact h-10 height) */}
+                <td className="px-2 py-3 text-center align-top w-[9%]">
+                  <div className="h-10 px-2 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center gap-1">
+                    <span className="text-xs font-black text-primary">
                       {item.totalMtr} MTR
                     </span>
-                    <span className="text-[9px] font-bold text-txtSecondary">
-                      ({item.calculatedMtr.toFixed(2)})
-                    </span>
+                  </div>
+                  <div className="text-[9px] font-bold text-txtSecondary text-center mt-1">
+                    ({item.calculatedMtr.toFixed(2)})
                   </div>
                 </td>
 
@@ -319,60 +316,69 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
                   </div>
                 </td>
 
-                {/* DISCOUNT (Toggle Pill + Input) */}
-                <td className="px-2 py-3 align-top w-[10%] space-y-1">
-                  <div className="flex items-center justify-end gap-1">
-                    <div className="inline-flex p-0.5 rounded-lg bg-cardBg border border-borderClr/30">
+                {/* DISCOUNT (Unified h-10 Group with Embedded Switcher) */}
+                <td className="px-2 py-3 align-top w-[11%]">
+                  <div className="flex items-center h-10 rounded-xl bg-hoverBg/60 border border-borderClr/30 overflow-hidden focus-within:border-primary/50 transition-all">
+                    <div className="flex p-0.5 bg-cardBg/80 border-r border-borderClr/30 shrink-0">
                       <button
                         type="button"
                         onClick={() => updateCurtainItem(item.id, { discountType: 'PERCENTAGE' })}
-                        className={`px-1.5 py-0.5 text-[9px] font-bold rounded-md transition-colors ${
-                          item.discountType === 'PERCENTAGE' ? 'bg-primary text-white shadow-xs' : 'text-txtSecondary'
+                        className={`px-1.5 py-1 text-[9px] font-bold rounded-md transition-all cursor-pointer ${
+                          item.discountType === 'PERCENTAGE'
+                            ? 'bg-primary text-white shadow-xs'
+                            : 'text-txtSecondary hover:text-txtPrimary'
                         }`}
+                        title="Percentage Discount (%)"
                       >
                         %
                       </button>
                       <button
                         type="button"
                         onClick={() => updateCurtainItem(item.id, { discountType: 'FIXED' })}
-                        className={`px-1.5 py-0.5 text-[9px] font-bold rounded-md transition-colors ${
-                          item.discountType === 'FIXED' ? 'bg-primary text-white shadow-xs' : 'text-txtSecondary'
+                        className={`px-1.5 py-1 text-[9px] font-bold rounded-md transition-all cursor-pointer ${
+                          item.discountType === 'FIXED'
+                            ? 'bg-primary text-white shadow-xs'
+                            : 'text-txtSecondary hover:text-txtPrimary'
                         }`}
+                        title="Flat Rupee Discount (₹)"
                       >
                         ₹
                       </button>
                     </div>
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      value={item.discountValue || ''}
+                      onChange={(e) => updateCurtainItem(item.id, { discountValue: e.target.value === '' ? 0 : Number(e.target.value) })}
+                      className="w-full h-full px-2 text-xs text-right bg-transparent text-txtPrimary font-bold focus:outline-none"
+                    />
                   </div>
-
-                  <input
-                    type="number"
-                    min={0}
-                    placeholder="0"
-                    value={item.discountValue || ''}
-                    onChange={(e) => updateCurtainItem(item.id, { discountValue: e.target.value === '' ? 0 : Number(e.target.value) })}
-                    className="w-full h-10 px-2 py-2 text-xs text-right rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-bold focus:outline-none focus:border-primary/50 transition-all"
-                  />
                   {item.discountAmount > 0 && (
-                    <div className="text-[9px] text-right font-bold text-success">
+                    <div className="text-[9px] text-right font-bold text-emerald-500 mt-1">
                       -₹{item.discountAmount.toLocaleString('en-IN')}
                     </div>
                   )}
                 </td>
 
                 {/* TOTAL PRICE (₹) */}
-                <td className="px-2 py-3 text-right align-top pt-3 w-[12%] font-black tracking-tight">
-                  <span className="text-base font-black text-txtPrimary">
+                <td className="px-2 py-3 text-right align-top w-[10%]">
+                  <div className="h-10 flex items-center justify-end font-black text-sm text-txtPrimary tracking-tight">
                     ₹{item.totalPrice.toLocaleString('en-IN')}
-                  </span>
+                  </div>
+                  <div className="text-[9px] text-right text-txtSecondary font-medium mt-1">
+                    Net line total
+                  </div>
                 </td>
 
-                {/* ACTION */}
-                <td className="px-2 py-3 text-center align-top pt-3 w-[3%]">
+                {/* ACTION (Trash - Exact h-10 size) */}
+                <td className="px-2 py-3 text-center align-top w-[4%]">
                   <button
                     type="button"
-                    disabled={items.length === 1}
                     onClick={() => handleRemoveItem(item.id)}
-                    className="p-1.5 rounded-lg text-txtSecondary hover:text-danger hover:bg-danger/10 disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer"
+                    disabled={items.length <= 1}
+                    className="h-10 w-10 mx-auto rounded-xl flex items-center justify-center text-txtSecondary hover:text-danger hover:bg-danger/10 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                    title="Remove curtain line"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -383,46 +389,32 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
         </table>
       </div>
 
-      {/* Grand Total Summary Footer Card */}
-      <div className="p-4 rounded-2xl bg-hoverBg/50 border border-borderClr/40 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-6">
+      {/* Calculation Summary Footer Card */}
+      <div className="p-4 rounded-2xl bg-hoverBg/40 border border-borderClr/30 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-6 text-xs">
           <div>
-            <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Total Items</p>
-            <p className="text-sm font-black text-txtPrimary">{summary.totalItems} Curtains</p>
+            <span className="text-txtSecondary font-medium">Curtain Lines:</span>
+            <span className="ml-1.5 font-bold text-txtPrimary">{items.length}</span>
           </div>
-          <div className="h-8 w-px bg-borderClr/40" />
           <div>
-            <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Total Fabric Required</p>
-            <p className="text-sm font-black text-primary">{summary.totalMtrSum} MTR</p>
+            <span className="text-txtSecondary font-medium">Total Fabric Required:</span>
+            <span className="ml-1.5 font-black text-primary text-sm">{totalMeterage} MTR</span>
           </div>
-          <div className="h-8 w-px bg-borderClr/40" />
           <div>
-            <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Total Subtotal</p>
-            <p className="text-sm font-black text-txtPrimary">₹{summary.subtotalSum.toLocaleString('en-IN')}</p>
+            <span className="text-txtSecondary font-medium">Gross Subtotal:</span>
+            <span className="ml-1.5 font-bold text-txtPrimary">₹{totalAmount.toLocaleString('en-IN')}</span>
           </div>
-          <div className="h-8 w-px bg-borderClr/40" />
-          <div>
-            <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Total Discounts</p>
-            <p className="text-sm font-black text-success">-₹{summary.discountSum.toLocaleString('en-IN')}</p>
-          </div>
+          {totalDiscount > 0 && (
+            <div>
+              <span className="text-txtSecondary font-medium">Total Discount:</span>
+              <span className="ml-1.5 font-bold text-emerald-500">-₹{totalDiscount.toLocaleString('en-IN')}</span>
+            </div>
+          )}
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-[10px] font-extrabold text-txtSecondary uppercase tracking-wider">Grand Total Price</p>
-            <p className="text-xl font-black text-primary tracking-tight">₹{summary.grandTotal.toLocaleString('en-IN')}</p>
-          </div>
-
-          {onImportToQuotation && (
-            <button
-              type="button"
-              onClick={handleImportToMainQuotation}
-              className="px-4 py-2.5 rounded-xl bg-primary text-white font-black text-xs hover:bg-primary-hover transition-all shadow-md flex items-center gap-1.5 cursor-pointer ml-2"
-            >
-              Sync to Quotation
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          )}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-txtSecondary font-bold uppercase tracking-wider">Curtain Batch Total:</span>
+          <span className="text-lg font-black text-primary">₹{grandTotal.toLocaleString('en-IN')}</span>
         </div>
       </div>
     </div>

@@ -23,16 +23,20 @@ export const FeetInchesInput: React.FC<FeetInchesInputProps> = ({
   const totalInches = feetInchesToInches(feet, inches);
 
   return (
-    <div className="space-y-1">
+    <div className="w-full">
       {label && (
-        <div className="flex items-center justify-between text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
+        <div className="flex items-center justify-between text-[10px] font-bold text-txtSecondary uppercase tracking-wider mb-1">
           <span>{label}</span>
           <span className="text-primary font-bold">({totalInches}")</span>
         </div>
       )}
-      <div className={`flex items-center gap-1 p-1 rounded-xl bg-hoverBg/60 border ${hasError ? 'border-danger' : 'border-borderClr/30'} focus-within:border-primary/50 transition-all`}>
+      <div
+        className={`flex items-center gap-1 h-10 px-1 rounded-xl bg-hoverBg/60 border ${
+          hasError ? 'border-danger' : 'border-borderClr/30'
+        } focus-within:border-primary/50 transition-all`}
+      >
         {/* Feet Input */}
-        <div className="flex-1 flex items-center gap-1 bg-cardBg/80 px-2 py-1 rounded-lg border border-borderClr/20">
+        <div className="flex-1 h-8 flex items-center gap-1 bg-cardBg/80 px-2 rounded-lg border border-borderClr/20">
           <input
             type="number"
             min={0}
@@ -45,7 +49,7 @@ export const FeetInchesInput: React.FC<FeetInchesInputProps> = ({
         </div>
 
         {/* Inches Input */}
-        <div className="flex-1 flex items-center gap-1 bg-cardBg/80 px-2 py-1 rounded-lg border border-borderClr/20">
+        <div className="flex-1 h-8 flex items-center gap-1 bg-cardBg/80 px-2 rounded-lg border border-borderClr/20">
           <input
             type="number"
             min={0}
