@@ -453,11 +453,11 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
             </div>
 
         {/* 9 Column Table matching Clean Quotation Layout */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-2xl border border-borderClr/30 bg-cardBg">
           <table className="w-full text-left border-collapse min-w-[900px] table-fixed">
             <thead>
-              <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
-                <th className="px-2 py-3 text-center w-[3%]">SR.</th>
+              <tr className="bg-hoverBg/50 border-b border-borderClr/30 text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
+                <th className="px-2 py-3 text-center w-[3%] rounded-tl-2xl">SR.</th>
                 <th className="px-2 py-3 text-left w-[48%]">PRODUCT / OTHER CHARGES</th>
                 <th className="px-2 py-3 text-center w-[8%]">QTY.</th>
                 <th className="px-2 py-3 text-center w-[8%]">UOM</th>
@@ -467,7 +467,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                 <th className="px-2 py-3 text-right w-[14%]">
                   <span className="text-xs font-black text-primary uppercase tracking-wide">TOTAL (₹)</span>
                 </th>
-                <th className="px-2 py-3 text-center w-[3%]"></th>
+                <th className="px-2 py-3 text-center w-[3%] rounded-tr-2xl"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-borderClr/20 text-xs">

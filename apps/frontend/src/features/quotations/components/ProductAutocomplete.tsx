@@ -101,7 +101,7 @@ export const ProductAutocomplete: React.FC<ProductAutocompleteProps> = ({
           maxHeight: '280px',
         }}
       >
-        <div className="p-2.5 border-b border-borderClr/30 bg-hoverBg/60 flex items-center justify-between text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
+        <div className="p-2.5 border-b border-borderClr/30 bg-hoverBg/60 rounded-t-2xl flex items-center justify-between text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
           <span className="flex items-center gap-1.5">
             <Package className="w-3.5 h-3.5 text-primary" /> Inventory Catalog
           </span>

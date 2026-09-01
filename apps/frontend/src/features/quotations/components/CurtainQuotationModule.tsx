@@ -201,11 +201,11 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
       </div>
 
       {/* Interactive Curtain Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-2xl border border-borderClr/30 bg-cardBg">
         <table className="w-full text-left border-collapse min-w-[950px] table-fixed">
           <thead>
             <tr className="bg-hoverBg/60 border-b border-borderClr/40 text-[10px] font-extrabold text-txtSecondary uppercase tracking-wider">
-              <th className="px-2 py-3 text-center w-[3%]">#</th>
+              <th className="px-2 py-3 text-center w-[3%] rounded-tl-2xl">#</th>
               <th className="px-3 py-3 text-left w-[26%]">ITEM NAME</th>
               <th className="px-2 py-3 text-center w-[15%]">WINDOW WIDTH</th>
               <th className="px-2 py-3 text-center w-[15%]">WINDOW HEIGHT</th>
@@ -215,7 +215,7 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
               <th className="px-2 py-3 text-right w-[10%]">
                 <span className="text-xs font-black text-primary uppercase">TOTAL (₹)</span>
               </th>
-              <th className="px-2 py-3 text-center w-[4%]"></th>
+              <th className="px-2 py-3 text-center w-[4%] rounded-tr-2xl"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-borderClr/20 text-xs">

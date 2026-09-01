@@ -53,7 +53,7 @@ export const PlaceOfSupplySelect: React.FC<PlaceOfSupplySelectProps> = ({ value,
       {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-1 z-[100] bg-white dark:bg-zinc-900 border border-borderClr shadow-2xl rounded-2xl overflow-hidden animate-fade-in">
           {/* Search Input Bar */}
-          <div className="p-2 border-b border-borderClr/30 bg-hoverBg/40 flex items-center gap-2">
+          <div className="p-2 border-b border-borderClr/30 bg-hoverBg/40 rounded-t-2xl flex items-center gap-2">
             <Search className="h-3.5 w-3.5 text-txtSecondary shrink-0 ml-1" />
             <input
               type="text"
