@@ -43,6 +43,7 @@ export default function CreateQuotationPage() {
   const [validUntil, setValidUntil] = useState(fifteenDaysLater);
   const [notes, setNotes] = useState('50% advance along with order confirmation. Balance upon installation.');
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountUnit, setDiscountUnit] = useState<'AMOUNT' | 'PERCENT'>('AMOUNT');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Auto-sync sequence from backend
@@ -74,19 +75,23 @@ export default function CreateQuotationPage() {
     },
   ]);
 
-  // Dynamic Math
+  // Dynamic Math with Discount Unit support
   const { subtotal, taxAmount, grandTotal } = useMemo(() => {
     let sub = 0;
     let tax = 0;
     items.forEach((item) => {
-      const lineSub = Math.max(0, (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0) - (Number(item.discount) || 0));
+      const q = Number(item.quantity) || 0;
+      const p = Number(item.unitPrice) || 0;
+      const d = Number(item.discount) || 0;
+      const discAmt = discountUnit === 'PERCENT' ? (q * p * d) / 100 : d;
+      const lineSub = Math.max(0, q * p - discAmt);
       const lineTax = lineSub * ((Number(item.taxPercent) || 0) / 100);
       sub += lineSub;
       tax += lineTax;
     });
     const total = Math.max(0, sub + tax - Number(discountAmount || 0));
     return { subtotal: sub, taxAmount: tax, grandTotal: total };
-  }, [items, discountAmount]);
+  }, [items, discountAmount, discountUnit]);
 
   // Item Handlers
   const handleAddItem = () => {
@@ -120,7 +125,8 @@ export default function CreateQuotationPage() {
           const price = Number(updated.unitPrice) || 0;
           const disc = Number(updated.discount) || 0;
           const taxPct = Number(updated.taxPercent) || 0;
-          const lineSub = Math.max(0, qty * price - disc);
+          const discAmt = discountUnit === 'PERCENT' ? (qty * price * disc) / 100 : disc;
+          const lineSub = Math.max(0, qty * price - discAmt);
           updated.total = lineSub * (1 + taxPct / 100);
           return updated;
         }
@@ -314,6 +320,8 @@ export default function CreateQuotationPage() {
             onUpdateItem={handleUpdateItem}
             notes={notes}
             setNotes={setNotes}
+            discountUnit={discountUnit}
+            setDiscountUnit={setDiscountUnit}
           />
         </motion.div>
 

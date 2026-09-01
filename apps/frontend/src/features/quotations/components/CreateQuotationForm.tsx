@@ -40,6 +40,8 @@ interface CreateQuotationFormProps {
   onUpdateItem: (id: string, field: keyof QuotationItem, val: any) => void;
   notes: string;
   setNotes: (val: string) => void;
+  discountUnit?: 'AMOUNT' | 'PERCENT';
+  setDiscountUnit?: (val: 'AMOUNT' | 'PERCENT') => void;
 }
 
 export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
@@ -73,6 +75,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
   onUpdateItem,
   notes,
   setNotes,
+  discountUnit = 'AMOUNT',
+  setDiscountUnit,
 }) => {
   const uomOptions = ['NOS', 'SQFT', 'MTR', 'PCS', 'SET', 'LOT', 'BOX', 'KG'];
   const [itemMode, setItemMode] = useState<'STANDARD' | 'CURTAINS'>('STANDARD');
@@ -414,13 +418,23 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                   <div className="inline-flex p-0.5 rounded-lg bg-cardBg border border-borderClr/30">
                     <button
                       type="button"
-                      className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-primary text-white shadow-xs"
+                      onClick={() => setDiscountUnit?.('AMOUNT')}
+                      className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        discountUnit === 'AMOUNT'
+                          ? 'bg-primary text-white shadow-xs'
+                          : 'text-txtSecondary hover:text-txtPrimary hover:bg-hoverBg'
+                      }`}
                     >
                       ₹
                     </button>
                     <button
                       type="button"
-                      className="px-2 py-0.5 text-[10px] font-bold rounded-md text-txtSecondary hover:text-txtPrimary transition-colors"
+                      onClick={() => setDiscountUnit?.('PERCENT')}
+                      className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        discountUnit === 'PERCENT'
+                          ? 'bg-primary text-white shadow-xs'
+                          : 'text-txtSecondary hover:text-txtPrimary hover:bg-hoverBg'
+                      }`}
                     >
                       %
                     </button>
@@ -448,7 +462,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                 <th className="px-2 py-3 text-center w-[8%]">QTY.</th>
                 <th className="px-2 py-3 text-center w-[8%]">UOM</th>
                 <th className="px-2 py-3 text-right w-[9%]">PRICE (₹)</th>
-                <th className="px-2 py-3 text-right w-[7%]">DISCOUNT</th>
+                <th className="px-2 py-3 text-right w-[7%]">DISCOUNT ({discountUnit === 'PERCENT' ? '%' : '₹'})</th>
                 <th className="px-2 py-3 text-right w-[8%]">CGST + SGST</th>
                 <th className="px-2 py-3 text-right w-[14%]">
                   <span className="text-xs font-black text-primary uppercase tracking-wide">TOTAL (₹)</span>
@@ -460,10 +474,11 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
               {items.map((item, idx) => {
                 const qty = item.quantity || 0;
                 const price = item.unitPrice || 0;
-                const disc = item.discount || 0;
-                const lineSub = Math.max(0, qty * price - disc);
+                const discVal = item.discount || 0;
+                const discAmt = discountUnit === 'PERCENT' ? (qty * price * discVal) / 100 : discVal;
+                const lineSub = Math.max(0, qty * price - discAmt);
                 const taxP = typeof item.taxPercent === 'number' ? item.taxPercent : 0;
-                const lineTotal = (qty || price || disc) ? lineSub * (1 + taxP / 100) : 0;
+                const lineTotal = (qty || price || discVal) ? lineSub * (1 + taxP / 100) : 0;
 
                 return (
                   <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
