@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sparkles, FileText } from 'lucide-react';
+import { ArrowLeft, Sparkles, FileText, CheckCircle, Save, Loader2 } from 'lucide-react';
 import { CreateQuotationForm } from '../components/CreateQuotationForm';
 import { QuotationSummaryCard } from '../components/QuotationSummaryCard';
 import { QuotationPreviewModal } from '../components/QuotationPreviewModal';
 import { BankDetailsCard } from '../components/BankDetailsCard';
 import { QuotationItem } from '../types';
 import { useFinancialYearStore } from '@/lib/financial-year.store';
+import { useCreateQuotation, useNextQuotationNumber } from '../api/quotations.api';
+import { useToastStore } from '@/lib/toast.store';
 import {
   pageHeaderVariants,
   staggerContainerVariants,
@@ -19,14 +21,17 @@ import {
 export default function CreateQuotationPage() {
   const router = useRouter();
   const { activeFY } = useFinancialYearStore();
+  const { addToast } = useToastStore();
 
-  // Form State - Blank by default for new quotation creation
+  const { data: nextNumData } = useNextQuotationNumber(activeFY?.id);
+  const createMutation = useCreateQuotation();
+
   const today = new Date().toISOString().split('T')[0];
   const fifteenDaysLater = new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
 
   const [companyName, setCompanyName] = useState('');
-  const [contactPerson, setContactPerson] = useState('Naitik Bhai');
-  const [customerName, setCustomerName] = useState('Naitik Bhai');
+  const [contactPerson, setContactPerson] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [customerAddress, setCustomerAddress] = useState('');
@@ -34,11 +39,18 @@ export default function CreateQuotationPage() {
   const [placeOfSupply, setPlaceOfSupply] = useState('24-Gujarat');
   const [financialYear, setFinancialYear] = useState(activeFY?.shortCode || '26-27');
   const [quotationNumber, setQuotationNumber] = useState('0001');
-  const [issueDate, setIssueDate] = useState('2026-01-07');
-  const [validUntil, setValidUntil] = useState('2026-01-22');
-  const [notes, setNotes] = useState('');
+  const [issueDate, setIssueDate] = useState(today);
+  const [validUntil, setValidUntil] = useState(fifteenDaysLater);
+  const [notes, setNotes] = useState('50% advance along with order confirmation. Balance upon installation.');
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // Auto-sync sequence from backend
+  useEffect(() => {
+    if (nextNumData?.sequence) {
+      setQuotationNumber(String(nextNumData.sequence).padStart(4, '0'));
+    }
+  }, [nextNumData]);
 
   const fullQuotationNumber = useMemo(() => {
     const num = quotationNumber.trim() || '0001';
@@ -46,32 +58,32 @@ export default function CreateQuotationPage() {
     return `DD-${num}/${fy}`;
   }, [quotationNumber, financialYear]);
 
-  // Line Items State - Pre-filled from vendor quotation (SVR Furnitech - Naitik Bhai, dated 07.01.2026)
+  // Initial starter line items
   const [items, setItems] = useState<QuotationItem[]>([
-    // === CURTAIN ===
-    { id: '1', description: 'Living Room Main Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 10.5, uom: 'MTR', unitPrice: 838, discount: 2200, taxPercent: 0, total: 6599 },
-    { id: '2', description: 'Living Room Sheer Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 10.5, uom: 'MTR', unitPrice: 298, discount: 782, taxPercent: 0, total: 2347 },
-    { id: '3', description: 'G.Floor Fabric Zebra', itemNotes: 'Curtain', hsnCode: '', quantity: 29, uom: 'SQFT', unitPrice: 240, discount: 1740, taxPercent: 0, total: 5220 },
-    { id: '4', description: 'Guest Room Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 13.75, uom: 'MTR', unitPrice: 463, discount: 1592, taxPercent: 0, total: 4775 },
-    { id: '5', description: 'Children Room Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 20.25, uom: 'MTR', unitPrice: 672, discount: 3402, taxPercent: 0, total: 10206 },
-    { id: '6', description: '1st Floor Front Room Main Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 32, uom: 'MTR', unitPrice: 672, discount: 5376, taxPercent: 0, total: 16128 },
-    { id: '7', description: '1st Floor Front Room Sheer Fabric', itemNotes: 'Curtain', hsnCode: '', quantity: 32, uom: 'MTR', unitPrice: 298, discount: 2384, taxPercent: 0, total: 7152 },
-    // === TRACK & STITCHING ===
-    { id: '8', description: 'Black Out Aster', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 76.5, uom: 'MTR', unitPrice: 140, discount: 0, taxPercent: 0, total: 10710 },
-    { id: '9', description: 'Curtain Stitching', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 37, uom: 'PCS', unitPrice: 130, discount: 0, taxPercent: 0, total: 4810 },
-    { id: '10', description: 'Channel', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 52, uom: 'PCS', unitPrice: 130, discount: 0, taxPercent: 0, total: 6760 },
-    { id: '11', description: 'Curtain Feeting', itemNotes: 'Track & Stitching', hsnCode: '', quantity: 9, uom: 'PCS', unitPrice: 250, discount: 0, taxPercent: 0, total: 2250 },
-    // === BED BACK ===
-    { id: '12', description: 'G.Floor Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
-    { id: '13', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 992, discount: 620, taxPercent: 0, total: 1860 },
-    { id: '14', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 962, discount: 722, taxPercent: 0, total: 2165 },
-    { id: '15', description: 'Children Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
-    { id: '16', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 965, discount: 603, taxPercent: 0, total: 1809 },
-    { id: '17', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 1213, discount: 910, taxPercent: 0, total: 2729 },
-    { id: '18', description: '1st Floor Front Room Bed Back Work', itemNotes: 'Bed Back', hsnCode: '', quantity: 50, uom: 'SQFT', unitPrice: 300, discount: 0, taxPercent: 0, total: 15000 },
-    { id: '19', description: 'Bed Profile Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 2.5, uom: 'MTR', unitPrice: 1213, discount: 758, taxPercent: 0, total: 2274 },
-    { id: '20', description: 'Bed Back Leather', itemNotes: 'Bed Back', hsnCode: '', quantity: 3, uom: 'MTR', unitPrice: 962, discount: 722, taxPercent: 0, total: 2165 },
-    { id: '21', description: 'Delivery Charges', itemNotes: '', hsnCode: '', quantity: 1, uom: 'NOS', unitPrice: 2000, discount: 0, taxPercent: 0, total: 2000 },
+    {
+      id: '1',
+      description: 'Living Room Main Curtain Fabric (Pleated)',
+      itemNotes: 'Window Curtains',
+      hsnCode: '6303',
+      quantity: 10.5,
+      uom: 'MTR',
+      unitPrice: 850,
+      discount: 0,
+      taxPercent: 12,
+      total: 9996,
+    },
+    {
+      id: '2',
+      description: 'Living Room Translucent Sheer Curtain',
+      itemNotes: 'Window Curtains',
+      hsnCode: '6303',
+      quantity: 10.5,
+      uom: 'MTR',
+      unitPrice: 550,
+      discount: 0,
+      taxPercent: 12,
+      total: 6468,
+    },
   ]);
 
   // Dynamic Math
@@ -79,12 +91,12 @@ export default function CreateQuotationPage() {
     let sub = 0;
     let tax = 0;
     items.forEach((item) => {
-      const lineSub = Math.max(0, item.quantity * item.unitPrice - (item.discount || 0));
-      const lineTax = lineSub * (item.taxPercent / 100);
+      const lineSub = Math.max(0, (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0) - (Number(item.discount) || 0));
+      const lineTax = lineSub * ((Number(item.taxPercent) || 0) / 100);
       sub += lineSub;
       tax += lineTax;
     });
-    const total = Math.max(0, sub + tax - discountAmount);
+    const total = Math.max(0, sub + tax - Number(discountAmount || 0));
     return { subtotal: sub, taxAmount: tax, grandTotal: total };
   }, [items, discountAmount]);
 
@@ -95,11 +107,11 @@ export default function CreateQuotationPage() {
       description: '',
       itemNotes: '',
       hsnCode: '',
-      quantity: '' as any,
-      uom: 'NOS',
-      unitPrice: '' as any,
-      discount: '' as any,
-      taxPercent: '' as any,
+      quantity: 1,
+      uom: 'MTR',
+      unitPrice: 0,
+      discount: 0,
+      taxPercent: 12,
       total: 0,
     };
     setItems((prev) => [...prev, newItem]);
@@ -116,8 +128,12 @@ export default function CreateQuotationPage() {
       prev.map((item) => {
         if (item.id === id) {
           const updated = { ...item, [field]: val };
-          const sub = Math.max(0, updated.quantity * updated.unitPrice - (updated.discount || 0));
-          updated.total = sub * (1 + updated.taxPercent / 100);
+          const qty = Number(updated.quantity) || 0;
+          const price = Number(updated.unitPrice) || 0;
+          const disc = Number(updated.discount) || 0;
+          const taxPct = Number(updated.taxPercent) || 0;
+          const lineSub = Math.max(0, qty * price - disc);
+          updated.total = lineSub * (1 + taxPct / 100);
           return updated;
         }
         return item;
@@ -126,18 +142,99 @@ export default function CreateQuotationPage() {
   };
 
   // Submit Actions
-  const handleSaveDraft = () => {
-    alert(`Success! Quotation ${fullQuotationNumber} saved as DRAFT.`);
-    router.push('/quotations');
+  const handleSaveDraft = async () => {
+    try {
+      const payload = {
+        quotationNumber: fullQuotationNumber,
+        customerName: customerName || contactPerson || companyName || 'Walk-in Client',
+        customerEmail,
+        customerPhone,
+        customerAddress,
+        customerGstin,
+        companyName,
+        contactPerson,
+        placeOfSupply,
+        financialYearId: activeFY?.id,
+        issueDate,
+        validUntil,
+        status: 'DRAFT',
+        discountAmount: Number(discountAmount || 0),
+        notes,
+        items: items.map((i) => ({
+          description: i.description,
+          quantity: Number(i.quantity) || 1,
+          unitRate: Number(i.unitPrice) || 0,
+          taxPercent: Number(i.taxPercent) || 0,
+          discount: Number(i.discount) || 0,
+        })),
+      };
+
+      await createMutation.mutateAsync(payload);
+      addToast({
+        title: 'Draft Saved',
+        message: `Quotation ${fullQuotationNumber} saved as Draft.`,
+        type: 'success',
+      });
+      router.push('/quotations');
+    } catch (err: any) {
+      addToast({
+        title: 'Save Failed',
+        message: err.message || 'Could not save quotation draft.',
+        type: 'error',
+      });
+    }
   };
 
-  const handleIssueQuotation = () => {
-    if (!customerName || !customerEmail) {
-      alert('Please fill in the Client Name and Client Email before issuing.');
+  const handleIssueQuotation = async () => {
+    if (!customerName && !companyName && !contactPerson) {
+      addToast({
+        title: 'Client Required',
+        message: 'Please enter a Client Name or Company Name before issuing.',
+        type: 'warning',
+      });
       return;
     }
-    alert(`🎉 Success! Quotation ${fullQuotationNumber} (₹${grandTotal.toLocaleString('en-IN')}) has been generated and issued to ${customerName} (${customerEmail})!`);
-    router.push('/quotations');
+
+    try {
+      const payload = {
+        quotationNumber: fullQuotationNumber,
+        customerName: customerName || contactPerson || companyName,
+        customerEmail,
+        customerPhone,
+        customerAddress,
+        customerGstin,
+        companyName,
+        contactPerson,
+        placeOfSupply,
+        financialYearId: activeFY?.id,
+        issueDate,
+        validUntil,
+        status: 'APPROVED',
+        discountAmount: Number(discountAmount || 0),
+        notes,
+        items: items.map((i) => ({
+          description: i.description,
+          quantity: Number(i.quantity) || 1,
+          unitRate: Number(i.unitPrice) || 0,
+          taxPercent: Number(i.taxPercent) || 0,
+          discount: Number(i.discount) || 0,
+        })),
+      };
+
+      await createMutation.mutateAsync(payload);
+      addToast({
+        title: 'Quotation Issued!',
+        message: `Quotation ${fullQuotationNumber} generated successfully!`,
+        type: 'success',
+      });
+      router.push('/quotations');
+    } catch (err: any) {
+      addToast({
+        title: 'Issue Failed',
+        message: err.message || 'Could not issue quotation.',
+        type: 'error',
+      });
+    }
   };
 
   const handlePreviewPDF = () => {
@@ -163,11 +260,30 @@ export default function CreateQuotationPage() {
           <div>
             <div className="flex items-center gap-2 mb-0.5">
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> Draft Builder
+                <Sparkles className="h-3 w-3" /> Quotation Studio
               </span>
             </div>
             <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Create New Quotation</h1>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={handleSaveDraft}
+            disabled={createMutation.isPending}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-hoverBg hover:bg-hoverBg/80 text-txtPrimary font-bold text-xs border border-borderClr/40 transition-colors"
+          >
+            {createMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            <span>Save Draft</span>
+          </button>
+          <button
+            onClick={handleIssueQuotation}
+            disabled={createMutation.isPending}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-primary/25 transition-all active:scale-[0.98]"
+          >
+            {createMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+            <span>Issue & Send</span>
+          </button>
         </div>
       </motion.div>
 
@@ -272,7 +388,7 @@ export default function CreateQuotationPage() {
         validUntil={validUntil}
         companyName={companyName}
         contactPerson={contactPerson}
-        customerName={customerName || contactPerson || companyName}
+        customerName={customerName || contactPerson || companyName || 'Client'}
         customerEmail={customerEmail}
         customerPhone={customerPhone}
         customerAddress={customerAddress}

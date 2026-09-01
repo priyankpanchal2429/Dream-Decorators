@@ -9,9 +9,12 @@ const router = Router();
 router.use(authenticateJwt);
 
 router.get('/', QuotationsController.list);
+router.get('/stats', QuotationsController.getStats);
+router.get('/next-number', QuotationsController.getNextNumber);
 router.get('/:id', QuotationsController.getById);
 router.post('/', validateRequest(createQuotationSchema), QuotationsController.create);
 router.patch('/:id/status', validateRequest(updateQuotationStatusSchema), QuotationsController.updateStatus);
 router.post('/:id/convert-to-invoice', QuotationsController.convertToInvoice);
+router.delete('/:id', QuotationsController.delete);
 
 export default router;

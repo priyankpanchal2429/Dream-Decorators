@@ -1,29 +1,32 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Printer, Send, FileText, CheckCircle } from 'lucide-react';
-import { Quotation } from '../types';
+import { X, Printer, FileText, CheckCircle, ArrowRight } from 'lucide-react';
 import { formatINR } from '../../dashboard/constants';
 import { QuotationPreviewModal } from './QuotationPreviewModal';
 import { BankDetailsCard } from './BankDetailsCard';
 
 interface QuotationDetailModalProps {
-  quotation: Quotation | null;
+  quotation: any | null;
   onClose: () => void;
+  onConvertToInvoice?: (id: string) => void;
 }
 
 export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
   quotation,
   onClose,
+  onConvertToInvoice,
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   if (!quotation) return null;
 
+  const isConverted = quotation.status === 'APPROVED' && quotation.rawRecord?.salesInvoices?.length > 0;
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-        <div className="glass-panel w-full max-w-2xl rounded-3xl p-6 relative overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-white/10">
+        <div className="glass-panel w-full max-w-2xl rounded-3xl p-6 relative overflow-hidden flex flex-col max-h-[90vh] shadow-2xl border border-white/10 bg-cardBg">
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-borderClr/30">
             <div className="flex items-center gap-3">
@@ -51,7 +54,9 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
               <div>
                 <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Client Name</span>
                 <p className="text-xs font-bold text-txtPrimary mt-0.5">{quotation.customerName}</p>
-                <p className="text-[10px] text-txtSecondary mt-0.5">{quotation.customerEmail}</p>
+                {quotation.customerEmail && (
+                  <p className="text-[10px] text-txtSecondary mt-0.5">{quotation.customerEmail}</p>
+                )}
               </div>
               <div>
                 <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Status</span>
@@ -79,7 +84,7 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-borderClr/20 text-xs">
-                    {quotation.items.map((item) => (
+                    {(quotation.items || []).map((item: any) => (
                       <tr key={item.id}>
                         <td className="px-4 py-3 font-semibold text-txtPrimary">{item.description}</td>
                         <td className="px-4 py-3 text-center text-txtSecondary font-medium font-mono">{item.quantity} {item.uom || 'NOS'}</td>
@@ -99,10 +104,10 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
                 <span className="font-semibold text-txtPrimary">{formatINR(quotation.subtotal)}</span>
               </div>
               <div className="flex justify-between w-48 text-xs text-txtSecondary">
-                <span>Tax (GST 18%):</span>
+                <span>Tax Amount:</span>
                 <span className="font-semibold text-txtPrimary">{formatINR(quotation.taxAmount)}</span>
               </div>
-              {quotation.discountAmount && (
+              {quotation.discountAmount > 0 && (
                 <div className="flex justify-between w-48 text-xs text-danger">
                   <span>Discount:</span>
                   <span className="font-semibold">-{formatINR(quotation.discountAmount)}</span>
@@ -127,21 +132,34 @@ export const QuotationDetailModal: React.FC<QuotationDetailModalProps> = ({
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-borderClr/30">
-            <button
-              onClick={() => setIsPreviewOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hoverBg hover:bg-hoverBg/80 text-txtPrimary text-xs font-bold transition-colors border border-borderClr/40"
-            >
-              <Printer className="h-3.5 w-3.5" />
-              Preview PDF & Print
-            </button>
-            <button
-              onClick={() => alert(`Quotation ${quotation.quotationNumber} converted to Sales Invoice!`)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold transition-colors shadow-md shadow-primary/20"
-            >
-              <CheckCircle className="h-3.5 w-3.5" />
-              Convert to Invoice
-            </button>
+          <div className="flex items-center justify-between pt-4 border-t border-borderClr/30">
+            <div className="text-xs text-txtSecondary">
+              {isConverted && (
+                <span className="inline-flex items-center gap-1.5 text-success font-semibold text-[11px]">
+                  <CheckCircle className="w-3.5 h-3.5" /> Converted to Sales Invoice
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsPreviewOpen(true)}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-hoverBg hover:bg-hoverBg/80 text-txtPrimary text-xs font-bold transition-colors border border-borderClr/40"
+              >
+                <Printer className="h-3.5 w-3.5" />
+                Preview PDF & Print
+              </button>
+
+              {!isConverted && onConvertToInvoice && (
+                <button
+                  onClick={() => onConvertToInvoice(quotation.id)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-md shadow-primary/20"
+                >
+                  <CheckCircle className="h-3.5 w-3.5" />
+                  Convert to Tax Invoice
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
