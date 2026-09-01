@@ -7,20 +7,21 @@ dotenv.config();
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 
+const FALLBACK_DB_URL =
+  'postgresql://neondb_owner:npg_ystu3hWg1qcw@ep-late-cake-azb3r3tg-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
+const FALLBACK_DIRECT_URL =
+  'postgresql://neondb_owner:npg_ystu3hWg1qcw@ep-late-cake-azb3r3tg.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require';
+
 function sanitizeDbUrl(url: string | undefined): string | undefined {
   if (!url) return undefined;
   let cleaned = url.trim();
   cleaned = cleaned.replace(/^(DATABASE_URL|DIRECT_URL)\s*=\s*/i, '');
   cleaned = cleaned.replace(/^["']|["']$/g, '').trim();
-  return cleaned;
+  return cleaned.startsWith('postgres') ? cleaned : undefined;
 }
 
-if (process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = sanitizeDbUrl(process.env.DATABASE_URL);
-}
-if (process.env.DIRECT_URL) {
-  process.env.DIRECT_URL = sanitizeDbUrl(process.env.DIRECT_URL);
-}
+process.env.DATABASE_URL = sanitizeDbUrl(process.env.DATABASE_URL) || FALLBACK_DB_URL;
+process.env.DIRECT_URL = sanitizeDbUrl(process.env.DIRECT_URL) || FALLBACK_DIRECT_URL;
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -31,8 +32,8 @@ const envSchema = z.object({
   UPLOAD_DIR: z.string().default('uploads'),
   MAX_FILE_SIZE_MB: z.union([z.string(), z.number()]).transform((val) => Number(val)).default(10),
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'debug']).default('info'),
-  DATABASE_URL: z.string().optional(),
-  DIRECT_URL: z.string().optional(),
+  DATABASE_URL: z.string().default(FALLBACK_DB_URL),
+  DIRECT_URL: z.string().default(FALLBACK_DIRECT_URL),
 });
 
 const _env = envSchema.safeParse(process.env);
@@ -52,6 +53,6 @@ export const env = _env.success
       UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
       MAX_FILE_SIZE_MB: Number(process.env.MAX_FILE_SIZE_MB) || 10,
       LOG_LEVEL: (process.env.LOG_LEVEL as any) || 'info',
-      DATABASE_URL: process.env.DATABASE_URL,
-      DIRECT_URL: process.env.DIRECT_URL,
+      DATABASE_URL: FALLBACK_DB_URL,
+      DIRECT_URL: FALLBACK_DIRECT_URL,
     };
