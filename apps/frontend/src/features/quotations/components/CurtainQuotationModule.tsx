@@ -23,24 +23,24 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
     'Dining Area Curtain',
   ];
 
-  // Default Items State (pre-filled with user example for instant testing)
+  // Default Items State (Clean starter row)
   const [items, setItems] = useState<CurtainItem[]>([
     {
       id: 'c-1',
-      itemName: 'Living Room Main Curtain',
-      width: { feet: 8, inches: 0 },
-      height: { feet: 4, inches: 0 },
-      totalWidthInches: 96,
-      totalHeightInches: 48,
-      fabricWidthsRequired: 5,
-      calculatedMtr: 6.10,
-      totalMtr: 7,
-      perMtrPrice: 450,
-      subtotal: 3150,
+      itemName: '',
+      width: { feet: 0, inches: 0 },
+      height: { feet: 0, inches: 0 },
+      totalWidthInches: 0,
+      totalHeightInches: 0,
+      fabricWidthsRequired: 0,
+      calculatedMtr: 0,
+      totalMtr: 0,
+      perMtrPrice: 0,
+      subtotal: 0,
       discountType: 'PERCENTAGE',
-      discountValue: 10,
-      discountAmount: 315,
-      totalPrice: 2835,
+      discountValue: 0,
+      discountAmount: 0,
+      totalPrice: 0,
     },
   ]);
 
@@ -100,19 +100,19 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
     const newItem: CurtainItem = {
       id: Date.now().toString(),
       itemName: '',
-      width: { feet: 6, inches: 0 },
-      height: { feet: 7, inches: 0 },
-      totalWidthInches: 72,
-      totalHeightInches: 84,
-      fabricWidthsRequired: 4,
-      calculatedMtr: 8.53,
-      totalMtr: 9,
-      perMtrPrice: 500,
-      subtotal: 4500,
+      width: { feet: 0, inches: 0 },
+      height: { feet: 0, inches: 0 },
+      totalWidthInches: 0,
+      totalHeightInches: 0,
+      fabricWidthsRequired: 0,
+      calculatedMtr: 0,
+      totalMtr: 0,
+      perMtrPrice: 0,
+      subtotal: 0,
       discountType: 'PERCENTAGE',
       discountValue: 0,
       discountAmount: 0,
-      totalPrice: 4500,
+      totalPrice: 0,
     };
     setItems((prev) => [...prev, newItem]);
   };

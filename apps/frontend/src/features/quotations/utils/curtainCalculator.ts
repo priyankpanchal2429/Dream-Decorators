@@ -101,6 +101,7 @@ export function validateCurtainItem(
   const widthIn = feetInchesToInches(widthFeet, widthInches);
   const heightIn = feetInchesToInches(heightFeet, heightInches);
 
+  if (widthIn === 0 && heightIn === 0 && perMtrPrice === 0) return undefined;
   if (widthIn <= 0) return 'Window Width must be greater than 0';
   if (heightIn <= 0) return 'Window Height must be greater than 0';
   if (perMtrPrice < 0) return 'Per MTR Price cannot be negative';
