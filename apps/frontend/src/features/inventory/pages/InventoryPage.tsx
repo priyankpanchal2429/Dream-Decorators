@@ -2,10 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Package, Search, Plus, AlertCircle, Layers, TrendingUp } from 'lucide-react';
-import { InventoryItem } from '../types';
+import { Package, Search, Plus, AlertCircle, Layers, TrendingUp, RefreshCw, Loader2 } from 'lucide-react';
+import { useInventory, useCreateProduct, InventoryProduct } from '../api/inventory.api';
 import { InventoryFormModal } from '../components/InventoryFormModal';
 import { formatINR } from '@/features/dashboard/constants';
+import { useToastStore } from '@/lib/toast.store';
 import {
   pageHeaderVariants,
   staggerContainerVariants,
@@ -13,76 +14,77 @@ import {
 } from '@/config/animations';
 
 export default function InventoryPage() {
+  const { addToast } = useToastStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [items, setItems] = useState<InventoryItem[]>([
-    {
-      id: 'inv-1',
-      sku: 'SKU-TK-001',
-      name: 'Burma Teakwood Planks (10ft x 4in)',
-      category: 'Teakwood',
-      hsnCode: '44071000',
-      stockQty: 420,
-      uom: 'MTR',
-      unitPrice: 1850,
-      reorderLevel: 100,
-      status: 'IN_STOCK',
-    },
-    {
-      id: 'inv-2',
-      sku: 'SKU-VL-002',
-      name: 'Italian Royal Blue Velvet Fabric',
-      category: 'Fabrics',
-      hsnCode: '54075200',
-      stockQty: 45,
-      uom: 'MTR',
-      unitPrice: 2400,
-      reorderLevel: 50,
-      status: 'LOW_STOCK',
-    },
-    {
-      id: 'inv-3',
-      sku: 'SKU-MB-003',
-      name: 'Statuario White Italian Marble Slab',
-      category: 'Marble',
-      hsnCode: '68022100',
-      stockQty: 850,
-      uom: 'SQFT',
-      unitPrice: 650,
-      reorderLevel: 200,
-      status: 'IN_STOCK',
-    },
-    {
-      id: 'inv-4',
-      sku: 'SKU-HD-004',
-      name: 'Antique Brass Soft-close Hinges (Pair)',
-      category: 'Hardware',
-      hsnCode: '83021010',
-      stockQty: 0,
-      uom: 'SET',
-      unitPrice: 890,
-      reorderLevel: 30,
-      status: 'OUT_OF_STOCK',
-    },
-  ]);
+  // Fetch live inventory from cloud database
+  const { data: inventoryData, isLoading, refetch } = useInventory({
+    search: searchTerm || undefined,
+  });
+
+  const createProductMutation = useCreateProduct();
+
+  const productsList = useMemo(() => {
+    return inventoryData?.products || [];
+  }, [inventoryData]);
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      const matchesSearch =
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = selectedStatus === 'ALL' || item.status === selectedStatus;
-      return matchesSearch && matchesStatus;
-    });
-  }, [items, searchTerm, selectedStatus]);
+    return productsList.filter((item) => {
+      const stock = (item.inventoryStocks || []).reduce((acc, s) => acc + (Number(s.quantity) || 0), 0);
+      let status = 'IN_STOCK';
+      if (stock === 0) status = 'OUT_OF_STOCK';
+      else if (stock <= item.minStockLevel) status = 'LOW_STOCK';
 
-  const totalStockValue = useMemo(
-    () => items.reduce((acc, item) => acc + item.stockQty * item.unitPrice, 0),
-    [items]
-  );
+      const matchesStatus = selectedStatus === 'ALL' || status === selectedStatus;
+      return matchesStatus;
+    });
+  }, [productsList, selectedStatus]);
+
+  const totalSKUs = productsList.length;
+  const totalValuation = useMemo(() => {
+    return productsList.reduce((acc, item) => {
+      const stock = (item.inventoryStocks || []).reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+      return acc + stock * Number(item.sellingPrice || 0);
+    }, 0);
+  }, [productsList]);
+
+  const lowStockCount = useMemo(() => {
+    return productsList.filter((item) => {
+      const stock = (item.inventoryStocks || []).reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+      return stock <= item.minStockLevel;
+    }).length;
+  }, [productsList]);
+
+  const handleSaveProduct = async (formData: any) => {
+    try {
+      await createProductMutation.mutateAsync({
+        sku: formData.sku,
+        name: formData.name,
+        category: formData.category || 'WINDOW_CURTAINS',
+        hsnCode: formData.hsnCode,
+        unitOfMeasure: formData.uom || 'METERS',
+        purchasePrice: Number(formData.purchasePrice || 0),
+        sellingPrice: Number(formData.sellingPrice || formData.unitPrice || 0),
+        taxRatePercent: Number(formData.taxRate || 18),
+        minStockLevel: Number(formData.minStockLevel || formData.reorderLevel || 5),
+        initialStock: Number(formData.stockQty || 0),
+      });
+      addToast({
+        title: 'Product Cataloged',
+        message: `${formData.name} was successfully registered.`,
+        type: 'success',
+      });
+      setIsModalOpen(false);
+    } catch (err: any) {
+      addToast({
+        title: 'Failed to Catalog Product',
+        message: err.message || 'Could not save product item.',
+        type: 'error',
+      });
+    }
+  };
 
   return (
     <div className="space-y-6 pb-12">
@@ -91,183 +93,208 @@ export default function InventoryPage() {
         variants={pageHeaderVariants}
         initial="hidden"
         animate="show"
-        className="pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderClr/30"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 pb-2 border-b border-borderClr/30"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-500">
-            <Package className="h-6 w-6" />
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+              <Package className="h-3 w-3" /> Warehouse Ledger
+            </span>
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Inventory & Raw Materials</h1>
-            <p className="text-xs text-txtSecondary mt-0.5">Track raw decor stock levels, HSN codes, and reorder alerts</p>
-          </div>
+          <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Inventory & Catalog</h1>
+          <p className="text-xs text-txtSecondary mt-0.5">
+            Stock quantities, HSN codes, UOM tracking, and valuation
+          </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          Add Stock Item
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="p-2.5 rounded-xl bg-hoverBg hover:bg-hoverBg/80 text-txtSecondary hover:text-txtPrimary transition-colors border border-borderClr/40"
+            title="Refresh Inventory"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-primary/25 transition-all active:scale-[0.98]"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Stock Item</span>
+          </button>
+        </div>
       </motion.div>
 
+      {/* Bento Grid */}
       <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
         variants={staggerContainerVariants}
         initial="hidden"
         animate="show"
-        className="space-y-6"
       >
-        {/* Stats Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Stock Value</p>
-              <h3 className="text-2xl font-black text-txtPrimary mt-1">{formatINR(totalStockValue)}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-primary/10 text-primary">
-              <TrendingUp className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Items In Stock</p>
-              <h3 className="text-2xl font-black text-emerald-500 mt-1">
-                {items.filter((i) => i.status === 'IN_STOCK').length}
-              </h3>
-            </div>
-            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
-              <Layers className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Low Stock Alerts</p>
-              <h3 className="text-2xl font-black text-amber-500 mt-1">
-                {items.filter((i) => i.status === 'LOW_STOCK').length}
-              </h3>
-            </div>
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
-              <AlertCircle className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Out of Stock</p>
-              <h3 className="text-2xl font-black text-rose-500 mt-1">
-                {items.filter((i) => i.status === 'OUT_OF_STOCK').length}
-              </h3>
-            </div>
-            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
-              <Package className="h-5 w-5" />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Filter Bar */}
-        <motion.div variants={springItemVariants} className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-            <input
-              type="text"
-              placeholder="Search SKU, item name, category..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
-            />
+        {/* KPI 1 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Total SKUs</p>
+            <p className="text-2xl font-black text-txtPrimary">{totalSKUs}</p>
+            <p className="text-[10px] text-txtSecondary font-medium">Catalog items in system</p>
           </div>
-
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            {['ALL', 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setSelectedStatus(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  selectedStatus === st
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'bg-hoverBg/50 text-txtSecondary hover:text-txtPrimary border border-borderClr/30'
-                }`}
-              >
-                {st.replace('_', ' ')}
-              </button>
-            ))}
+          <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
+            <Layers className="h-5 w-5" />
           </div>
         </motion.div>
 
-        {/* Inventory Table */}
-        <motion.div variants={springItemVariants} className="glass-panel rounded-3xl overflow-hidden">
+        {/* KPI 2 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Inventory Valuation</p>
+            <p className="text-2xl font-black text-txtPrimary">{formatINR(totalValuation)}</p>
+            <p className="text-[10px] text-emerald-500 font-medium">Realized asset value</p>
+          </div>
+          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+        </motion.div>
+
+        {/* KPI 3 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Low Stock Alerts</p>
+            <p className="text-2xl font-black text-txtPrimary">{lowStockCount}</p>
+            <p className="text-[10px] text-amber-500 font-medium">Below reorder thresholds</p>
+          </div>
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
+            <AlertCircle className="h-5 w-5" />
+          </div>
+        </motion.div>
+
+        {/* Table Section */}
+        <motion.div variants={springItemVariants} className="col-span-1 md:col-span-3 glass-panel p-0 rounded-3xl overflow-hidden">
+          {/* Controls Bar */}
+          <div className="p-6 border-b border-borderClr/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
+              <input
+                type="text"
+                placeholder="Search SKU, item name, HSN code..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary placeholder-txtSecondary/60 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 w-full sm:w-auto">
+              {['ALL', 'IN_STOCK', 'LOW_STOCK', 'OUT_OF_STOCK'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setSelectedStatus(status)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    selectedStatus === status
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-txtSecondary hover:text-txtPrimary hover:bg-hoverBg'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9.5px] font-bold text-txtSecondary uppercase tracking-widest">
-                  <th className="px-6 py-4">SKU / Code</th>
-                  <th className="px-6 py-4">Item Name</th>
-                  <th className="px-6 py-4">HSN Code</th>
-                  <th className="px-6 py-4 text-center">Stock Level</th>
-                  <th className="px-6 py-4 text-right">Unit Price (₹)</th>
-                  <th className="px-6 py-4 text-right">Total Value</th>
-                  <th className="px-6 py-4 text-center">Stock Status</th>
+                <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[10px] font-extrabold text-txtSecondary uppercase tracking-wider">
+                  <th className="px-6 py-3.5">SKU & Item Details</th>
+                  <th className="px-6 py-3.5">Category</th>
+                  <th className="px-6 py-3.5">HSN Code</th>
+                  <th className="px-6 py-3.5 text-center">Available Stock</th>
+                  <th className="px-6 py-3.5 text-right">Selling Price</th>
+                  <th className="px-6 py-3.5 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-borderClr/20 text-xs">
-                {filteredItems.map((item) => (
-                  <tr key={item.id} className="hover:bg-hoverBg/30 transition-colors">
-                    <td className="px-6 py-4 font-bold text-primary">{item.sku}</td>
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-txtPrimary">{item.name}</div>
-                      <span className="text-[10px] text-txtSecondary font-medium">{item.category}</span>
-                    </td>
-                    <td className="px-6 py-4 text-txtSecondary font-medium">{item.hsnCode}</td>
-                    <td className="px-6 py-4 text-center font-bold text-txtPrimary">
-                      {item.stockQty} {item.uom}
-                    </td>
-                    <td className="px-6 py-4 text-right font-medium text-txtPrimary">{formatINR(item.unitPrice)}</td>
-                    <td className="px-6 py-4 text-right font-black text-txtPrimary">
-                      {formatINR(item.stockQty * item.unitPrice)}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                          item.status === 'IN_STOCK'
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                            : item.status === 'LOW_STOCK'
-                            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                            : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-                        }`}
-                      >
-                        {item.status.replace('_', ' ')}
-                      </span>
+              <tbody className="divide-y divide-borderClr/20">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-txtSecondary">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                      Loading inventory records from database...
                     </td>
                   </tr>
-                ))}
+                ) : filteredItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-txtSecondary">
+                      <p className="font-semibold text-txtPrimary">No inventory cataloged</p>
+                      <p className="text-[11px] mt-1 text-txtSecondary">
+                        Add fabrics, blinds, wallpapers, or decor items to your warehouse.
+                      </p>
+                      <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="mt-3 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-sm"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Add First Stock Item
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredItems.map((item) => {
+                    const stock = (item.inventoryStocks || []).reduce((acc, s) => acc + (Number(s.quantity) || 0), 0);
+                    let statusBadge = 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+                    let statusLabel = 'IN STOCK';
+                    if (stock === 0) {
+                      statusBadge = 'bg-red-500/10 text-red-500 border-red-500/20';
+                      statusLabel = 'OUT OF STOCK';
+                    } else if (stock <= item.minStockLevel) {
+                      statusBadge = 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+                      statusLabel = 'LOW STOCK';
+                    }
+
+                    return (
+                      <tr key={item.id} className="hover:bg-hoverBg/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-txtPrimary">{item.name}</p>
+                          <p className="text-[10px] text-primary font-mono">{item.sku}</p>
+                        </td>
+
+                        <td className="px-6 py-4 text-txtSecondary font-medium">
+                          {item.category.replace('_', ' ')}
+                        </td>
+
+                        <td className="px-6 py-4 text-txtSecondary font-mono text-[11px]">
+                          {item.hsnCode || '—'}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          <span className="font-mono font-bold text-txtPrimary bg-hoverBg px-3 py-1 rounded-full text-xs">
+                            {stock} {item.unitOfMeasure}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4 text-right font-black text-txtPrimary">
+                          {formatINR(Number(item.sellingPrice) || 0)}
+                        </td>
+
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusBadge}`}>
+                            {statusLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </motion.div>
       </motion.div>
 
+      {/* Modal */}
       <InventoryFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={(data) => {
-          const newItem: InventoryItem = {
-            id: `inv-${Date.now()}`,
-            sku: data.sku || `SKU-IND-${Math.floor(100 + Math.random() * 900)}`,
-            name: data.name || 'New Stock Item',
-            category: 'Decor Materials',
-            hsnCode: data.hsnCode || '9403',
-            stockQty: data.stockQuantity || 10,
-            uom: data.uom || 'NOS',
-            unitPrice: data.unitPrice || 5000,
-            reorderLevel: 10,
-            status: data.status || 'IN_STOCK',
-          };
-          setItems((prev) => [newItem, ...prev]);
-          setIsModalOpen(false);
-        }}
+        onSave={handleSaveProduct}
       />
     </div>
   );

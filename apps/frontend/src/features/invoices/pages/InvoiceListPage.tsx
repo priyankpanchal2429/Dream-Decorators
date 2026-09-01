@@ -3,10 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Receipt, Search, Plus, CheckCircle2, Clock, AlertTriangle } from 'lucide-react';
-import { SalesInvoice } from '../types';
-import { InvoiceFormModal } from '../components/InvoiceFormModal';
+import { Receipt, Search, Plus, CheckCircle2, Clock, AlertTriangle, RefreshCw, Loader2, Eye } from 'lucide-react';
+import { useInvoices, InvoiceRecord } from '../api/invoices.api';
 import { formatINR } from '@/features/dashboard/constants';
+import { useFinancialYearStore } from '@/lib/financial-year.store';
 import {
   pageHeaderVariants,
   staggerContainerVariants,
@@ -15,62 +15,39 @@ import {
 
 export default function InvoiceListPage() {
   const router = useRouter();
+  const { activeFY } = useFinancialYearStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [invoices, setInvoices] = useState<SalesInvoice[]>([
-    {
-      id: 'inv-101',
-      invoiceNumber: 'INV-2026-881',
-      customerName: 'Aarav Sharma',
-      customerPhone: '+91 98765 43210',
-      issueDate: '2026-07-28',
-      dueDate: '2026-08-12',
-      totalAmount: 126620,
-      paidAmount: 126620,
-      balanceDue: 0,
-      status: 'PAID',
-    },
-    {
-      id: 'inv-102',
-      invoiceNumber: 'INV-2026-882',
-      customerName: 'Ananya Patel',
-      customerPhone: '+91 99256 63965',
-      issueDate: '2026-07-20',
-      dueDate: '2026-08-04',
-      totalAmount: 485000,
-      paidAmount: 250000,
-      balanceDue: 235000,
-      status: 'PARTIAL',
-    },
-    {
-      id: 'inv-103',
-      invoiceNumber: 'INV-2026-883',
-      customerName: 'Vikram Mehta',
-      customerPhone: '+91 97123 88411',
-      issueDate: '2026-07-01',
-      dueDate: '2026-07-15',
-      totalAmount: 210000,
-      paidAmount: 0,
-      balanceDue: 210000,
-      status: 'OVERDUE',
-    },
-  ]);
+  // Fetch live invoices from database
+  const { data: invoiceData, isLoading, refetch } = useInvoices({
+    search: searchTerm || undefined,
+    financialYearId: activeFY?.id || activeFY?.shortCode,
+  });
+
+  const invoicesList = useMemo(() => {
+    return invoiceData?.invoices || [];
+  }, [invoiceData]);
 
   const filteredInvoices = useMemo(() => {
-    return invoices.filter((inv) => {
-      const matchesSearch =
-        inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        inv.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = selectedStatus === 'ALL' || inv.status === selectedStatus;
-      return matchesSearch && matchesStatus;
+    return invoicesList.filter((inv) => {
+      const matchesStatus =
+        selectedStatus === 'ALL' ||
+        inv.paymentStatus === selectedStatus ||
+        inv.status === selectedStatus;
+      return matchesStatus;
     });
-  }, [invoices, searchTerm, selectedStatus]);
+  }, [invoicesList, selectedStatus]);
 
-  const totalBilled = useMemo(() => invoices.reduce((acc, inv) => acc + inv.totalAmount, 0), [invoices]);
-  const totalCollected = useMemo(() => invoices.reduce((acc, inv) => acc + inv.paidAmount, 0), [invoices]);
-  const totalDue = useMemo(() => invoices.reduce((acc, inv) => acc + inv.balanceDue, 0), [invoices]);
+  const totalBilled = useMemo(
+    () => invoicesList.reduce((acc, inv) => acc + (Number(inv.grandTotal) || 0), 0),
+    [invoicesList]
+  );
+  const totalPaid = useMemo(
+    () => invoicesList.reduce((acc, inv) => acc + (Number(inv.paidAmount) || 0), 0),
+    [invoicesList]
+  );
+  const totalBalanceDue = Math.max(0, totalBilled - totalPaid);
 
   return (
     <div className="space-y-6 pb-12">
@@ -79,177 +56,204 @@ export default function InvoiceListPage() {
         variants={pageHeaderVariants}
         initial="hidden"
         animate="show"
-        className="pt-6 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-borderClr/30"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 pb-2 border-b border-borderClr/30"
       >
-        <div className="flex items-center gap-3">
-          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-            <Receipt className="h-6 w-6" />
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+              <Receipt className="h-3 w-3" /> Billing & Invoicing
+            </span>
           </div>
-          <div>
-            <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Sales Invoices</h1>
-            <p className="text-xs text-txtSecondary mt-0.5">Track GST sales invoices, payment status, and due balances</p>
-          </div>
+          <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Sales Tax Invoices</h1>
+          <p className="text-xs text-txtSecondary mt-0.5">
+            GST compliant tax invoices for <span className="font-bold text-primary">{activeFY?.label || 'FY 2026-27'}</span>
+          </p>
         </div>
 
-        <button
-          onClick={() => router.push('/invoices/new')}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-lg shadow-primary/20 transition-all cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          Create Sales Invoice
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="p-2.5 rounded-xl bg-hoverBg hover:bg-hoverBg/80 text-txtSecondary hover:text-txtPrimary transition-colors border border-borderClr/40"
+            title="Refresh Invoices"
+          >
+            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => router.push('/invoices/new')}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary to-indigo-600 hover:from-primary/90 hover:to-indigo-500 text-white font-bold text-xs shadow-md shadow-primary/25 transition-all active:scale-[0.98]"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Generate New Invoice</span>
+          </button>
+        </div>
       </motion.div>
 
+      {/* Bento Grid */}
       <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
         variants={staggerContainerVariants}
         initial="hidden"
         animate="show"
-        className="space-y-6"
       >
-        {/* Stats Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Invoiced</p>
-              <h3 className="text-2xl font-black text-txtPrimary mt-1">{formatINR(totalBilled)}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-primary/10 text-primary">
-              <Receipt className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Amount Collected</p>
-              <h3 className="text-2xl font-black text-emerald-500 mt-1">{formatINR(totalCollected)}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Total Balance Due</p>
-              <h3 className="text-2xl font-black text-amber-500 mt-1">{formatINR(totalDue)}</h3>
-            </div>
-            <div className="p-3 rounded-xl bg-amber-500/10 text-amber-500">
-              <Clock className="h-5 w-5" />
-            </div>
-          </motion.div>
-
-          <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-2xl flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-bold text-txtSecondary uppercase tracking-widest">Overdue Invoices</p>
-              <h3 className="text-2xl font-black text-rose-500 mt-1">
-                {invoices.filter((i) => i.status === 'OVERDUE').length}
-              </h3>
-            </div>
-            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-500">
-              <AlertTriangle className="h-5 w-5" />
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Filter Bar */}
-        <motion.div variants={springItemVariants} className="glass-panel p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
-            <input
-              type="text"
-              placeholder="Search invoice #, client..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary focus:outline-none focus:border-primary/50 font-medium"
-            />
+        {/* KPI 1 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Total Billed</p>
+            <p className="text-2xl font-black text-txtPrimary">{formatINR(totalBilled)}</p>
+            <p className="text-[10px] text-txtSecondary font-medium">{invoicesList.length} Invoices issued</p>
           </div>
-
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
-            {['ALL', 'PAID', 'PARTIAL', 'OVERDUE', 'UNPAID'].map((st) => (
-              <button
-                key={st}
-                onClick={() => setSelectedStatus(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  selectedStatus === st
-                    ? 'bg-primary text-white shadow-xs'
-                    : 'bg-hoverBg/50 text-txtSecondary hover:text-txtPrimary border border-borderClr/30'
-                }`}
-              >
-                {st}
-              </button>
-            ))}
+          <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
+            <Receipt className="h-5 w-5" />
           </div>
         </motion.div>
 
-        {/* Invoices Table */}
-        <motion.div variants={springItemVariants} className="glass-panel rounded-3xl overflow-hidden">
+        {/* KPI 2 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Paid Amount</p>
+            <p className="text-2xl font-black text-emerald-500">{formatINR(totalPaid)}</p>
+            <p className="text-[10px] text-emerald-500 font-medium flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" /> Cleared receipts
+            </p>
+          </div>
+          <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+            <CheckCircle2 className="h-5 w-5" />
+          </div>
+        </motion.div>
+
+        {/* KPI 3 */}
+        <motion.div variants={springItemVariants} className="glass-panel p-5 rounded-3xl flex items-center justify-between">
+          <div className="space-y-1">
+            <p className="text-xs font-extrabold text-txtSecondary uppercase tracking-wider">Outstanding Receivables</p>
+            <p className="text-2xl font-black text-txtPrimary">{formatINR(totalBalanceDue)}</p>
+            <p className="text-[10px] text-txtSecondary font-medium">Pending client dues</p>
+          </div>
+          <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-500">
+            <Clock className="h-5 w-5" />
+          </div>
+        </motion.div>
+
+        {/* Table Section */}
+        <motion.div variants={springItemVariants} className="col-span-1 md:col-span-3 glass-panel p-0 rounded-3xl overflow-hidden">
+          {/* Controls Bar */}
+          <div className="p-6 border-b border-borderClr/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-txtSecondary" />
+              <input
+                type="text"
+                placeholder="Search invoice number, client..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 text-xs rounded-xl bg-hoverBg/50 border border-borderClr/40 text-txtPrimary placeholder-txtSecondary/60 focus:outline-none focus:border-primary/50 transition-colors"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 w-full sm:w-auto">
+              {['ALL', 'PAID', 'PARTIAL', 'UNPAID', 'OVERDUE'].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setSelectedStatus(status)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    selectedStatus === status
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-txtSecondary hover:text-txtPrimary hover:bg-hoverBg'
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[9.5px] font-bold text-txtSecondary uppercase tracking-widest">
-                  <th className="px-6 py-4">Invoice #</th>
-                  <th className="px-6 py-4">Client Name</th>
-                  <th className="px-6 py-4">Issue Date</th>
-                  <th className="px-6 py-4">Due Date</th>
-                  <th className="px-6 py-4 text-right">Total Amount</th>
-                  <th className="px-6 py-4 text-right">Balance Due</th>
-                  <th className="px-6 py-4 text-center">Status</th>
+                <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[10px] font-extrabold text-txtSecondary uppercase tracking-wider">
+                  <th className="px-6 py-3.5">Invoice Details</th>
+                  <th className="px-6 py-3.5">Customer</th>
+                  <th className="px-6 py-3.5">Date / Due Date</th>
+                  <th className="px-6 py-3.5 text-right">Total Amount</th>
+                  <th className="px-6 py-3.5 text-right">Paid</th>
+                  <th className="px-6 py-3.5 text-right">Balance Due</th>
+                  <th className="px-6 py-3.5 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-borderClr/20 text-xs">
-                {filteredInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-hoverBg/30 transition-colors">
-                    <td className="px-6 py-4 font-bold text-primary">{inv.invoiceNumber}</td>
-                    <td className="px-6 py-4 font-semibold text-txtPrimary">{inv.customerName}</td>
-                    <td className="px-6 py-4 text-txtSecondary font-medium">{inv.issueDate}</td>
-                    <td className="px-6 py-4 text-txtSecondary font-medium">{inv.dueDate}</td>
-                    <td className="px-6 py-4 text-right font-black text-txtPrimary">{formatINR(inv.totalAmount)}</td>
-                    <td className="px-6 py-4 text-right">
-                      <span className={`font-bold ${inv.balanceDue > 0 ? 'text-amber-500' : 'text-emerald-500'}`}>
-                        {formatINR(inv.balanceDue)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
-                          inv.status === 'PAID'
-                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                            : inv.status === 'PARTIAL'
-                            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
-                            : 'bg-rose-500/10 text-rose-500 border-rose-500/20'
-                        }`}
-                      >
-                        {inv.status}
-                      </span>
+              <tbody className="divide-y divide-borderClr/20">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-txtSecondary">
+                      <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
+                      Loading invoices from database...
                     </td>
                   </tr>
-                ))}
+                ) : filteredInvoices.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-txtSecondary">
+                      <p className="font-semibold text-txtPrimary">No invoices found for {activeFY?.label}</p>
+                      <p className="text-[11px] mt-1 text-txtSecondary">
+                        Generate a new GST invoice or convert an approved quotation.
+                      </p>
+                      <button
+                        onClick={() => router.push('/invoices/new')}
+                        className="mt-3 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-sm"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Generate First Invoice
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredInvoices.map((inv) => {
+                    const grand = Number(inv.grandTotal) || 0;
+                    const paid = Number(inv.paidAmount) || 0;
+                    const balance = Math.max(0, grand - paid);
+                    return (
+                      <tr key={inv.id} className="hover:bg-hoverBg/50 transition-colors">
+                        <td className="px-6 py-4 font-bold text-txtPrimary">
+                          <span className="text-primary font-mono">{inv.invoiceNumber}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-txtPrimary">{inv.party?.name || 'Walk-in Client'}</p>
+                          <p className="text-[10px] text-txtSecondary">{inv.party?.phone || ''}</p>
+                        </td>
+                        <td className="px-6 py-4 text-txtSecondary">
+                          <p>{new Date(inv.date).toLocaleDateString('en-IN')}</p>
+                          <p className="text-[10px]">Due: {new Date(inv.dueDate).toLocaleDateString('en-IN')}</p>
+                        </td>
+                        <td className="px-6 py-4 text-right font-black text-txtPrimary">
+                          {formatINR(grand)}
+                        </td>
+                        <td className="px-6 py-4 text-right font-medium text-emerald-500">
+                          {formatINR(paid)}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`font-bold ${balance > 0 ? 'text-danger' : 'text-txtSecondary'}`}>
+                            {formatINR(balance)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                              inv.paymentStatus === 'PAID'
+                                ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+                                : inv.paymentStatus === 'PARTIAL'
+                                ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                                : 'bg-red-500/10 text-red-500 border-red-500/20'
+                            }`}
+                          >
+                            {inv.paymentStatus || inv.status}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
         </motion.div>
       </motion.div>
-
-      <InvoiceFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={(data) => {
-          const newInv: SalesInvoice = {
-            id: `inv-${Date.now()}`,
-            invoiceNumber: data.invoiceNumber || `INV-2026-${Math.floor(100 + Math.random() * 900)}`,
-            customerName: data.customerName || 'Aarav Sharma',
-            customerPhone: '+91 98765 43210',
-            issueDate: data.issueDate || new Date().toISOString().split('T')[0],
-            dueDate: data.dueDate || '2026-08-15',
-            totalAmount: data.totalAmount || 125000,
-            paidAmount: data.status === 'PAID' ? data.totalAmount || 125000 : 0,
-            balanceDue: data.balanceDue || 0,
-            status: data.status || 'PARTIAL',
-          };
-          setInvoices((prev) => [newInv, ...prev]);
-          setIsModalOpen(false);
-        }}
-      />
     </div>
   );
 }

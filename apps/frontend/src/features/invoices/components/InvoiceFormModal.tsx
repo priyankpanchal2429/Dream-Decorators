@@ -14,9 +14,9 @@ interface InvoiceFormModalProps {
 }
 
 export const InvoiceFormModal: React.FC<InvoiceFormModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [customerName, setCustomerName] = useState('Aarav Sharma');
-  const [invoiceDate, setInvoiceDate] = useState('2026-07-30');
-  const [dueDate, setDueDate] = useState('2026-08-15');
+  const [customerName, setCustomerName] = useState('');
+  const [invoiceDate, setInvoiceDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [dueDate, setDueDate] = useState(() => new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0]);
   const [itemDescription, setItemDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [status, setStatus] = useState<'PAID' | 'PARTIAL' | 'OVERDUE'>('PARTIAL');

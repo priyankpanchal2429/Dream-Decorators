@@ -17,7 +17,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({ isOpen, 
   const [type, setType] = useState<'RECEIVED' | 'PAID'>('RECEIVED');
   const [partyName, setPartyName] = useState('');
   const [paymentMode, setPaymentMode] = useState<'UPI' | 'NEFT/RTGS' | 'CHEQUE' | 'CASH'>('UPI');
-  const [date, setDate] = useState('2026-07-30');
+  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [amount, setAmount] = useState('');
   const [txnRef, setTxnRef] = useState('');
 

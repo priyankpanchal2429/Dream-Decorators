@@ -14,9 +14,9 @@ interface PurchaseFormModalProps {
 }
 
 export const PurchaseFormModal: React.FC<PurchaseFormModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [vendorName, setVendorName] = useState('Gujarat Teak Traders');
+  const [vendorName, setVendorName] = useState('');
   const [category, setCategory] = useState('Timber & Teakwood');
-  const [poDate, setPoDate] = useState('2026-07-30');
+  const [poDate, setPoDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [amount, setAmount] = useState('');
   const [status, setStatus] = useState<'RECEIVED' | 'PENDING'>('RECEIVED');
 

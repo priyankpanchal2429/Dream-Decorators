@@ -16,7 +16,7 @@ interface ChallanFormModalProps {
 export const ChallanFormModal: React.FC<ChallanFormModalProps> = ({ isOpen, onClose, onSave }) => {
   const [customerName, setCustomerName] = useState('');
   const [vehicleNumber, setVehicleNumber] = useState('');
-  const [dispatchDate, setDispatchDate] = useState('2026-07-30');
+  const [dispatchDate, setDispatchDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [itemCount, setItemCount] = useState('');
   const [status, setStatus] = useState<'DELIVERED' | 'IN_TRANSIT' | 'RETURNED'>('IN_TRANSIT');
 
