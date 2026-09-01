@@ -7,12 +7,19 @@ dotenv.config();
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });
 
-// Sanitize database URLs from surrounding quotes/spaces
+function sanitizeDbUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  let cleaned = url.trim();
+  cleaned = cleaned.replace(/^(DATABASE_URL|DIRECT_URL)\s*=\s*/i, '');
+  cleaned = cleaned.replace(/^["']|["']$/g, '').trim();
+  return cleaned;
+}
+
 if (process.env.DATABASE_URL) {
-  process.env.DATABASE_URL = process.env.DATABASE_URL.trim().replace(/^["']|["']$/g, '');
+  process.env.DATABASE_URL = sanitizeDbUrl(process.env.DATABASE_URL);
 }
 if (process.env.DIRECT_URL) {
-  process.env.DIRECT_URL = process.env.DIRECT_URL.trim().replace(/^["']|["']$/g, '');
+  process.env.DIRECT_URL = sanitizeDbUrl(process.env.DIRECT_URL);
 }
 
 const envSchema = z.object({
