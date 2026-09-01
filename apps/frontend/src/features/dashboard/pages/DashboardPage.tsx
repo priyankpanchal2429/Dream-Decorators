@@ -3,12 +3,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { DashboardHeader } from '../components/DashboardHeader';
+import { DashboardQuickCreateBar } from '../components/widgets/DashboardQuickCreateBar';
+import { DashboardCalendarWidget } from '../components/widgets/DashboardCalendarWidget';
+import { DashboardBankStatusWidget } from '../components/widgets/DashboardBankStatusWidget';
+import { DashboardNotesWidget } from '../components/widgets/DashboardNotesWidget';
 import { SummaryCard } from '../components/widgets/SummaryCard';
 import { OutstandingCard } from '../components/widgets/OutstandingCard';
 import { ProductWidgetCard } from '../components/widgets/ProductWidgetCard';
 import { InvoiceDueWidget } from '../components/widgets/InvoiceDueWidget';
-import { QuickActionsWidget } from '../components/widgets/QuickActionsWidget';
-import { ChartWidget } from '../components/widgets/ChartWidget';
 import {
   mockExpenseSummary,
   mockBestSellingProducts,
@@ -84,6 +86,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* 1. Greeting Header */}
       <motion.div
         variants={pageHeaderVariants}
         initial="hidden"
@@ -92,13 +95,39 @@ export default function DashboardPage() {
         <DashboardHeader />
       </motion.div>
 
-      <motion.div 
-        className="grid grid-cols-1 md:grid-cols-6 xl:grid-cols-12 gap-6 mt-6"
+      {/* 2. Interactive Reference-Inspired Grid */}
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch"
         variants={staggerContainerVariants}
         initial="hidden"
         animate="show"
       >
-        {/* Row 1: KPIs */}
+        {/* Left Section (8 Cols / 9 Cols): Top 5 Quick Action Cards + Calendar & Bank Cards */}
+        <motion.div variants={springItemVariants} className="col-span-1 lg:col-span-8 xl:col-span-9 flex flex-col gap-6 justify-between">
+          {/* Top 5 Action Cards (Width spanning till end of Bank card) */}
+          <DashboardQuickCreateBar />
+
+          {/* Bottom 2 Cards: Calendar & Bank Status side-by-side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 items-stretch">
+            <DashboardCalendarWidget />
+            <DashboardBankStatusWidget />
+          </div>
+        </motion.div>
+
+        {/* Right Section (4 Cols / 3 Cols): Tall Dark To-Do List spanning from 5-cards top to Bank-card bottom */}
+        <motion.div variants={springItemVariants} className="col-span-1 lg:col-span-4 xl:col-span-3 h-full flex flex-col">
+          <DashboardNotesWidget />
+        </motion.div>
+      </motion.div>
+
+      {/* 4. Financial Health & Revenue Overview */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-6 xl:grid-cols-12 gap-6"
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* KPIs */}
         <motion.div variants={springItemVariants} className="col-span-1 md:col-span-2 xl:col-span-4">
           <SummaryCard
             title={`Total Sales (${activeFY?.label || 'FY 2026-27'})`}
@@ -121,15 +150,7 @@ export default function DashboardPage() {
           />
         </motion.div>
 
-        {/* Row 2: Chart & Quick Actions */}
-        <motion.div variants={springItemVariants} className="col-span-1 md:col-span-6 xl:col-span-8">
-          <ChartWidget />
-        </motion.div>
-        <motion.div variants={springItemVariants} className="col-span-1 md:col-span-6 xl:col-span-4 h-full">
-          <QuickActionsWidget />
-        </motion.div>
-
-        {/* Row 3: Outstanding */}
+        {/* Outstanding Receivables & Payables */}
         <motion.div variants={springItemVariants} className="col-span-1 md:col-span-3 xl:col-span-6">
           <OutstandingCard
             title="Sales Outstanding"
@@ -145,7 +166,7 @@ export default function DashboardPage() {
           />
         </motion.div>
 
-        {/* Row 4: Sales Invoice Due */}
+        {/* Sales Invoice Due */}
         <motion.div variants={springItemVariants} className="col-span-1 md:col-span-6 xl:col-span-12">
           <InvoiceDueWidget
             title="Sales Invoice Due"
@@ -154,7 +175,7 @@ export default function DashboardPage() {
           />
         </motion.div>
 
-        {/* Row 5: Best Selling Products & Low Stock Alerts */}
+        {/* Best Selling Products & Low Stock Alerts */}
         <motion.div variants={springItemVariants} className="col-span-1 md:col-span-3 xl:col-span-6">
           <ProductWidgetCard
             title="Best Selling Products"

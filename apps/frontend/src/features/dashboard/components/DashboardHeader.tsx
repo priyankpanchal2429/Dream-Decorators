@@ -1,51 +1,49 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Calendar } from 'lucide-react';
+import React from 'react';
+import { CloudDrizzle, Calendar } from 'lucide-react';
+import { useAuthStore } from '@/lib/auth.store';
 
 interface DashboardHeaderProps {
   userName?: string;
 }
 
-export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName = 'Admin User' }) => {
-  const [greeting, setGreeting] = useState('Welcome');
-  
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting('Good Morning');
-    else if (hour < 18) setGreeting('Good Afternoon');
-    else setGreeting('Good Evening');
-  }, []);
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName }) => {
+  const { user } = useAuthStore();
+  const displayName = userName || user?.name || user?.username || 'Priyank';
 
-  const currentDate = new Intl.DateTimeFormat('en-US', {
-    weekday: 'long',
-    month: 'long',
+  const formattedDate = new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
     day: 'numeric',
-    year: 'numeric'
+    month: 'short',
   }).format(new Date());
 
   return (
-    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2 pt-6">
-      <div>
-        <h1 className="text-3xl font-black text-txtPrimary tracking-tight">
-          {greeting}, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-emerald-500">{userName}</span> 👋
-        </h1>
-        <p className="text-sm font-medium text-txtSecondary mt-2 flex items-center gap-1.5">
-          Here is what's happening with your business today.
-        </p>
-      </div>
-      
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-cardBg border border-borderClr shadow-sm glass-panel backdrop-blur-md">
-          <Calendar className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold text-txtPrimary">{currentDate}</span>
+    <div className="flex items-center gap-5 flex-wrap mb-12 md:mb-14 pt-4">
+      {/* Clean Regular-Font Heading (Enlarged) */}
+      <h1 className="text-4xl md:text-[46px] lg:text-[52px] font-normal text-txtPrimary tracking-tight leading-none">
+        Welcome back, {displayName}
+      </h1>
+
+      {/* Pill Badge: Weather & Date placed directly next to text */}
+      <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-cardBg border border-borderClr shadow-2xs backdrop-blur-md">
+        {/* Weather */}
+        <div className="flex items-center gap-2">
+          <CloudDrizzle className="w-4 h-4 text-blue-500 shrink-0" />
+          <span className="text-xs font-medium text-txtSecondary">
+            Surat 30°C Drizzle
+          </span>
         </div>
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-hoverBg border border-borderClr/50">
-          <div className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
-          </div>
-          <span className="text-[10px] font-bold text-txtSecondary uppercase tracking-wider">Live Sync</span>
+
+        {/* Vertical Separator */}
+        <span className="h-3.5 w-px bg-borderClr/70" />
+
+        {/* Date */}
+        <div className="flex items-center gap-1.5">
+          <Calendar className="w-3.5 h-3.5 text-txtSecondary shrink-0" />
+          <span className="text-xs font-medium text-txtSecondary">
+            {formattedDate}
+          </span>
         </div>
       </div>
     </div>

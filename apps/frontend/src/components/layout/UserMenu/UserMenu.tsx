@@ -28,7 +28,7 @@ export const UserMenu: React.FC = () => {
     router.push('/login');
   };
 
-  const displayName = user?.name || user?.username || 'Admin User';
+  const displayName = user?.name || user?.username || 'User';
   const displayId = user?.username ? `@${user.username}` : 'admin';
   const roleLabel = user?.role ? user.role.replace(/_/g, ' ') : 'Super Administrator';
 
