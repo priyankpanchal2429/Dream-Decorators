@@ -1,5 +1,6 @@
 import { prisma, DocumentStatus, PaymentStatus, Prisma } from '@dream-decorators/database';
 import { ApiError } from '../../utils/ApiError.js';
+import { resolveFinancialYear } from '../../utils/fyResolver.js';
 
 export class InvoicesService {
   static async listInvoices(filter: {
@@ -20,7 +21,10 @@ export class InvoicesService {
     if (filter.status) where.status = filter.status;
     if (filter.paymentStatus) where.paymentStatus = filter.paymentStatus;
     if (filter.partyId) where.partyId = filter.partyId;
-    if (filter.financialYearId) where.financialYearId = filter.financialYearId;
+    if (filter.financialYearId) {
+      const fy = await resolveFinancialYear(filter.financialYearId);
+      if (fy) where.financialYearId = fy.id;
+    }
 
     if (filter.search) {
       where.OR = [

@@ -22,16 +22,18 @@ import {
   springItemVariants,
 } from '@/config/animations';
 import { useToastStore } from '@/lib/toast.store';
+import { useFinancialYearStore } from '@/lib/financial-year.store';
 
 export default function QuotationsPage() {
   const router = useRouter();
   const { addToast } = useToastStore();
+  const { activeFY } = useFinancialYearStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedQuotation, setSelectedQuotation] = useState<any | null>(null);
 
-  // 1. Fetch live quotations from database
+  // 1. Fetch live quotations from database filtered by active Financial Year
   const {
     data: quotationsData,
     isLoading: isQuotesLoading,
@@ -40,10 +42,11 @@ export default function QuotationsPage() {
   } = useQuotations({
     status: statusFilter !== 'ALL' ? statusFilter : undefined,
     search: searchQuery || undefined,
+    financialYearId: activeFY?.id || activeFY?.shortCode,
   });
 
-  // 2. Fetch live KPI stats
-  const { data: statsData } = useQuotationStats();
+  // 2. Fetch live KPI stats filtered by active Financial Year
+  const { data: statsData } = useQuotationStats(activeFY?.id || activeFY?.shortCode);
 
   // 3. Delete & convert mutations
   const deleteMutation = useDeleteQuotation();

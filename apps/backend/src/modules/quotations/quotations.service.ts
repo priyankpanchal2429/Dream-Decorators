@@ -7,6 +7,7 @@ import {
   ProductCategory,
 } from '@dream-decorators/database';
 import { ApiError } from '../../utils/ApiError.js';
+import { resolveFinancialYear } from '../../utils/fyResolver.js';
 
 export class QuotationsService {
   static async listQuotations(filter: {
@@ -25,7 +26,10 @@ export class QuotationsService {
 
     if (filter.status) where.status = filter.status;
     if (filter.partyId) where.partyId = filter.partyId;
-    if (filter.financialYearId) where.financialYearId = filter.financialYearId;
+    if (filter.financialYearId) {
+      const fy = await resolveFinancialYear(filter.financialYearId);
+      if (fy) where.financialYearId = fy.id;
+    }
 
     if (filter.search) {
       where.OR = [
@@ -89,7 +93,8 @@ export class QuotationsService {
   }
 
   static async getQuotationStats(financialYearId?: string) {
-    const where: Prisma.QuotationWhereInput = financialYearId ? { financialYearId } : {};
+    const fy = await resolveFinancialYear(financialYearId);
+    const where: Prisma.QuotationWhereInput = fy ? { financialYearId: fy.id } : {};
 
     const [total, draft, approved, rejected] = await Promise.all([
       prisma.quotation.findMany({ where, select: { status: true, grandTotal: true } }),
@@ -124,13 +129,7 @@ export class QuotationsService {
   }
 
   static async getNextNumber(financialYearId?: string) {
-    let fy = financialYearId
-      ? await prisma.financialYear.findUnique({ where: { id: financialYearId } })
-      : await prisma.financialYear.findFirst({ where: { isCurrent: true } });
-
-    if (!fy) {
-      fy = await prisma.financialYear.findFirst({ orderBy: { startDate: 'desc' } });
-    }
+    const fy = await resolveFinancialYear(financialYearId);
 
     const count = await prisma.quotation.count({
       where: fy ? { financialYearId: fy.id } : undefined,
@@ -148,14 +147,11 @@ export class QuotationsService {
 
   static async createQuotation(data: any, createdById: string) {
     // 1. Resolve Financial Year
-    let fyId = data.financialYearId;
-    if (!fyId) {
-      const activeFY = await prisma.financialYear.findFirst({ where: { isCurrent: true } });
-      if (!activeFY) {
-        throw ApiError.badRequest('No active financial year configured');
-      }
-      fyId = activeFY.id;
+    const fy = await resolveFinancialYear(data.financialYearId);
+    if (!fy) {
+      throw ApiError.badRequest('Could not resolve an active financial year');
     }
+    const fyId = fy.id;
 
     // 2. Resolve or Create Party (Customer)
     let partyId = data.partyId;

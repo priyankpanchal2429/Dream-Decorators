@@ -1,8 +1,10 @@
 import { prisma, DocumentStatus, PartyType } from '@dream-decorators/database';
+import { resolveFinancialYear } from '../../utils/fyResolver.js';
 
 export class DashboardService {
   static async getSummaryStats(financialYearId?: string) {
-    const whereFY = financialYearId ? { financialYearId } : {};
+    const fy = await resolveFinancialYear(financialYearId);
+    const whereFY = fy ? { financialYearId: fy.id } : {};
 
     const [
       salesAgg,
@@ -83,6 +85,7 @@ export class DashboardService {
     const totalPayables = Math.max(0, totalPurchases - totalPaidToVendors);
 
     return {
+      financialYear: fy ? { id: fy.id, code: fy.code, isCurrent: fy.isCurrent } : null,
       kpis: {
         totalRevenue,
         totalCollected,
@@ -100,7 +103,9 @@ export class DashboardService {
   }
 
   static async getMonthlyRevenueTrend(financialYearId?: string) {
-    const whereFY = financialYearId ? { financialYearId } : {};
+    const fy = await resolveFinancialYear(financialYearId);
+    const whereFY = fy ? { financialYearId: fy.id } : {};
+
     const invoices = await prisma.salesInvoice.findMany({
       where: { ...whereFY, status: DocumentStatus.APPROVED },
       select: { date: true, grandTotal: true, paidAmount: true },
