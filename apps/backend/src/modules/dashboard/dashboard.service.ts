@@ -6,9 +6,18 @@ export class DashboardService {
     const fy = await resolveFinancialYear(financialYearId);
     const whereFY = fy ? { financialYearId: fy.id } : {};
 
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
     const [
       salesAgg,
+      todaySalesAgg,
       purchasesAgg,
+      todayPurchasesAgg,
+      salesDueTodayAgg,
+      purchasesDueTodayAgg,
       customerCount,
       vendorCount,
       quotationCount,
@@ -25,6 +34,11 @@ export class DashboardService {
         },
         _count: { _all: true },
       }),
+      // Today's Sales
+      prisma.salesInvoice.aggregate({
+        where: { ...whereFY, status: DocumentStatus.APPROVED, date: { gte: startOfToday, lte: endOfToday } },
+        _sum: { grandTotal: true },
+      }),
       // Purchases Totals
       prisma.purchaseInvoice.aggregate({
         where: { ...whereFY, status: DocumentStatus.APPROVED },
@@ -33,6 +47,21 @@ export class DashboardService {
           paidAmount: true,
         },
         _count: { _all: true },
+      }),
+      // Today's Purchases
+      prisma.purchaseInvoice.aggregate({
+        where: { ...whereFY, status: DocumentStatus.APPROVED, date: { gte: startOfToday, lte: endOfToday } },
+        _sum: { grandTotal: true },
+      }),
+      // Sales Due Today
+      prisma.salesInvoice.aggregate({
+        where: { ...whereFY, status: DocumentStatus.APPROVED, dueDate: { gte: startOfToday, lte: endOfToday } },
+        _sum: { grandTotal: true, paidAmount: true },
+      }),
+      // Purchases Due Today
+      prisma.purchaseInvoice.aggregate({
+        where: { ...whereFY, status: DocumentStatus.APPROVED, dueDate: { gte: startOfToday, lte: endOfToday } },
+        _sum: { grandTotal: true, paidAmount: true },
       }),
       // Parties Counts
       prisma.party.count({
@@ -77,20 +106,29 @@ export class DashboardService {
     });
 
     const totalRevenue = Number(salesAgg._sum?.grandTotal || 0);
+    const todayRevenue = Number(todaySalesAgg._sum?.grandTotal || 0);
     const totalCollected = Number(salesAgg._sum?.paidAmount || 0);
     const totalReceivables = Math.max(0, totalRevenue - totalCollected);
+    const salesDueToday = Math.max(0, Number(salesDueTodayAgg._sum?.grandTotal || 0) - Number(salesDueTodayAgg._sum?.paidAmount || 0));
 
     const totalPurchases = Number(purchasesAgg._sum?.grandTotal || 0);
+    const todayPurchases = Number(todayPurchasesAgg._sum?.grandTotal || 0);
     const totalPaidToVendors = Number(purchasesAgg._sum?.paidAmount || 0);
     const totalPayables = Math.max(0, totalPurchases - totalPaidToVendors);
+    const purchasesDueToday = Math.max(0, Number(purchasesDueTodayAgg._sum?.grandTotal || 0) - Number(purchasesDueTodayAgg._sum?.paidAmount || 0));
 
     return {
       financialYear: fy ? { id: fy.id, code: fy.code, isCurrent: fy.isCurrent } : null,
       kpis: {
         totalRevenue,
+        todayRevenue,
         totalCollected,
         totalReceivables,
+        salesDueToday,
+        totalPurchases,
+        todayPurchases,
         totalPayables,
+        purchasesDueToday,
         totalInvoices: salesAgg._count?._all || 0,
         totalQuotations: quotationCount,
         activeCustomers: customerCount,

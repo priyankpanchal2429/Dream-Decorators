@@ -74,6 +74,10 @@ export interface QuotationStatsData {
   rejectedCount: number;
   totalPipelineValue: number;
   approvedValue: number;
+  pendingValue?: number;
+  todayValue?: number;
+  todayApprovedValue?: number;
+  todayPendingValue?: number;
   conversionRate: string;
 }
 

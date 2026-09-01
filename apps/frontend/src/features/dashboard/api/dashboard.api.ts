@@ -9,9 +9,14 @@ export interface DashboardStatsResponse {
   } | null;
   kpis: {
     totalRevenue: number;
+    todayRevenue?: number;
     totalCollected: number;
     totalReceivables: number;
+    salesDueToday?: number;
+    totalPurchases?: number;
+    todayPurchases?: number;
     totalPayables: number;
+    purchasesDueToday?: number;
     totalInvoices: number;
     totalQuotations: number;
     activeCustomers: number;

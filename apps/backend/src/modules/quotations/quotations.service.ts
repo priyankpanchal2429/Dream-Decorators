@@ -96,21 +96,46 @@ export class QuotationsService {
     const fy = await resolveFinancialYear(financialYearId);
     const where: Prisma.QuotationWhereInput = fy ? { financialYearId: fy.id } : {};
 
-    const [total, draft, approved, rejected] = await Promise.all([
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const [total, draft, approved, rejected, todayQuotes] = await Promise.all([
       prisma.quotation.findMany({ where, select: { status: true, grandTotal: true } }),
       prisma.quotation.count({ where: { ...where, status: DocumentStatus.DRAFT } }),
       prisma.quotation.count({ where: { ...where, status: DocumentStatus.APPROVED } }),
       prisma.quotation.count({ where: { ...where, status: DocumentStatus.REJECTED } }),
+      prisma.quotation.findMany({
+        where: { ...where, createdAt: { gte: startOfToday, lte: endOfToday } },
+        select: { status: true, grandTotal: true },
+      }),
     ]);
 
     let totalPipelineValue = 0;
     let approvedValue = 0;
+    let pendingValue = 0;
 
     total.forEach((q) => {
       const val = Number(q.grandTotal) || 0;
       totalPipelineValue += val;
       if (q.status === DocumentStatus.APPROVED) {
         approvedValue += val;
+      } else if (q.status === DocumentStatus.DRAFT) {
+        pendingValue += val;
+      }
+    });
+
+    let todayValue = 0;
+    let todayApprovedValue = 0;
+    let todayPendingValue = 0;
+    todayQuotes.forEach((q) => {
+      const val = Number(q.grandTotal) || 0;
+      todayValue += val;
+      if (q.status === DocumentStatus.APPROVED) {
+        todayApprovedValue += val;
+      } else if (q.status === DocumentStatus.DRAFT) {
+        todayPendingValue += val;
       }
     });
 
@@ -124,6 +149,10 @@ export class QuotationsService {
       rejectedCount: rejected,
       totalPipelineValue,
       approvedValue,
+      pendingValue,
+      todayValue,
+      todayApprovedValue,
+      todayPendingValue,
       conversionRate: `${conversionRate}%`,
     };
   }

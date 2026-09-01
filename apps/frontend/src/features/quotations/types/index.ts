@@ -43,4 +43,10 @@ export interface QuotationStatsData {
   pendingCount: number;
   pendingValue: number;
   conversionRate: number;
+  todayValue?: number;
+  todayAcceptedValue?: number;
+  todayPendingValue?: number;
+  monthlyValue?: number;
+  monthlyAcceptedValue?: number;
+  monthlyPendingValue?: number;
 }

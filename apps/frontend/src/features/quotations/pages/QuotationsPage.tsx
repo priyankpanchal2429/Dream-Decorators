@@ -88,12 +88,18 @@ export default function QuotationsPage() {
   const computedStats: QuotationStatsData = useMemo(() => {
     if (statsData) {
       return {
-        totalCount: statsData.totalCount,
-        totalValue: statsData.totalPipelineValue,
-        acceptedCount: statsData.approvedCount,
-        acceptedValue: statsData.approvedValue,
-        pendingCount: statsData.draftCount,
-        pendingValue: Math.max(0, statsData.totalPipelineValue - statsData.approvedValue),
+        totalCount: statsData.totalCount || 0,
+        totalValue: statsData.totalPipelineValue || 0,
+        acceptedCount: statsData.approvedCount || 0,
+        acceptedValue: statsData.approvedValue || 0,
+        pendingCount: statsData.draftCount || 0,
+        pendingValue: Math.max(0, (statsData.totalPipelineValue || 0) - (statsData.approvedValue || 0)),
+        todayValue: statsData.todayValue || 0,
+        todayAcceptedValue: statsData.todayApprovedValue || 0,
+        todayPendingValue: statsData.todayPendingValue || 0,
+        monthlyValue: statsData.totalPipelineValue || 0,
+        monthlyAcceptedValue: statsData.approvedValue || 0,
+        monthlyPendingValue: Math.max(0, (statsData.totalPipelineValue || 0) - (statsData.approvedValue || 0)),
         conversionRate: parseFloat(statsData.conversionRate) || 0,
       };
     }

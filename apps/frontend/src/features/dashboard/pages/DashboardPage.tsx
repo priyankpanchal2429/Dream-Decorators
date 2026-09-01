@@ -30,48 +30,55 @@ export default function DashboardPage() {
   const { data: statsData } = useDashboardStats(activeFY?.id || activeFY?.shortCode);
 
   const salesSummary: MetricSummary = React.useMemo(() => {
-    const revenue = statsData?.kpis?.totalRevenue ?? 90200;
+    const revenue = statsData?.kpis?.totalRevenue ?? 0;
+    const today = statsData?.kpis?.todayRevenue ?? 0;
     return {
-      todayAmount: 18500,
+      todayAmount: today,
       monthlyAmount: revenue,
-      trendPercent: 14.2,
+      trendPercent: 0,
       isPositive: true,
-      sparkline: [42, 55, 38, 62, 70, 58, 75],
+      sparkline: [0, 0, 0, 0, 0, 0, 0],
       lastUpdated: 'Just now',
     };
   }, [statsData]);
 
   const purchaseSummary: MetricSummary = React.useMemo(() => {
-    const payables = statsData?.kpis?.totalPayables ?? 15000;
+    const payables = statsData?.kpis?.totalPurchases ?? statsData?.kpis?.totalPayables ?? 0;
+    const today = statsData?.kpis?.todayPurchases ?? 0;
     return {
-      todayAmount: 8500,
-      monthlyAmount: payables * 1.5,
-      trendPercent: 4.8,
+      todayAmount: today,
+      monthlyAmount: payables,
+      trendPercent: 0,
       isPositive: false,
-      sparkline: [30, 28, 35, 40, 32, 38, 34],
+      sparkline: [0, 0, 0, 0, 0, 0, 0],
       lastUpdated: 'Just now',
     };
   }, [statsData]);
 
   const salesOutstanding: OutstandingSummary = React.useMemo(() => {
-    const receivables = statsData?.kpis?.totalReceivables ?? 48200;
+    const receivables = statsData?.kpis?.totalReceivables ?? 0;
+    const dueToday = statsData?.kpis?.salesDueToday ?? 0;
+    const totalRev = statsData?.kpis?.totalRevenue ?? 0;
+    const collected = statsData?.kpis?.totalCollected ?? 0;
+    const recoveryPercent = totalRev > 0 ? Math.round((collected / totalRev) * 100) : 0;
     return {
       totalOutstanding: receivables,
-      dueToday: 12000,
+      dueToday,
       overdue: 0,
-      recoveryPercent: 78.5,
-      pendingCount: statsData?.kpis?.totalInvoices ?? 1,
+      recoveryPercent,
+      pendingCount: statsData?.kpis?.totalInvoices ?? 0,
     };
   }, [statsData]);
 
   const purchaseOutstanding: OutstandingSummary = React.useMemo(() => {
-    const payables = statsData?.kpis?.totalPayables ?? 15000;
+    const payables = statsData?.kpis?.totalPayables ?? 0;
+    const dueToday = statsData?.kpis?.purchasesDueToday ?? 0;
     return {
       totalOutstanding: payables,
-      dueToday: 5000,
+      dueToday,
       overdue: 0,
-      recoveryPercent: 88.0,
-      pendingCount: 1,
+      recoveryPercent: 0,
+      pendingCount: 0,
     };
   }, [statsData]);
 
