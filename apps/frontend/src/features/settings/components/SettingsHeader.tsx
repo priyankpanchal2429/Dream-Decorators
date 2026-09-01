@@ -12,14 +12,6 @@ export const SettingsHeader: React.FC<SettingsHeaderProps> = ({ isSaved, onSave 
   return (
     <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-6 pb-2">
       <div>
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5 shadow-xs">
-            <Settings className="h-3 w-3" /> Configuration Hub
-          </span>
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-            <ShieldCheck className="h-3 w-3" /> ERP Master Config
-          </span>
-        </div>
         <h1 className="text-3xl font-black text-txtPrimary tracking-tight">
           Business{' '}
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-indigo-500 to-purple-500">

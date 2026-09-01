@@ -252,11 +252,6 @@ export default function CreateQuotationPage() {
             <ArrowLeft className="h-4 w-4" />
           </button>
           <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> Quotation Studio
-              </span>
-            </div>
             <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Create New Quotation</h1>
           </div>
         </div>

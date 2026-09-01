@@ -165,11 +165,6 @@ export const CurtainQuotationModule: React.FC<CurtainQuotationModuleProps> = ({
             <Scissors className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-                <Sparkles className="h-2.5 w-2.5" /> Built-in Formula
-              </span>
-            </div>
             <h3 className="text-base font-black text-txtPrimary tracking-tight">Curtain Quotation Module</h3>
           </div>
         </div>

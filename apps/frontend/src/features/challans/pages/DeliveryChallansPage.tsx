@@ -45,11 +45,6 @@ export default function DeliveryChallansPage() {
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 pb-2 border-b border-borderClr/30"
       >
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
-              <Truck className="h-3 w-3" /> Logistics & Dispatch
-            </span>
-          </div>
           <h1 className="text-2xl font-black text-txtPrimary tracking-tight">Delivery Challans</h1>
           <p className="text-xs text-txtSecondary mt-0.5">
             Material gate passes and site deliveries for <span className="font-bold text-primary">{activeFY?.label || 'FY 2026-27'}</span>
