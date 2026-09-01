@@ -60,9 +60,6 @@ export const QuotationStats: React.FC<QuotationStatsProps> = ({ stats }) => {
           key={idx}
           className="glass-panel flex flex-col p-5 rounded-3xl relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full"
         >
-          {/* Ambient Glow */}
-          <div className={cn("absolute -top-10 -right-10 w-28 h-28 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40 pointer-events-none", card.glowColor)} />
-
           <div className="flex items-center justify-between mb-4 relative z-10">
             <div className="flex items-center gap-3">
               <div className={cn("p-2.5 rounded-xl backdrop-blur-md border shadow-sm", card.iconBg)}>

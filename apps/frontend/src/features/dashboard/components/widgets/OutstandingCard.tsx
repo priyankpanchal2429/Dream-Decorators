@@ -22,11 +22,6 @@ export const OutstandingCard: React.FC<OutstandingCardProps> = ({
     
   return (
     <div className="glass-panel flex flex-col p-6 rounded-3xl relative overflow-hidden group h-full">
-      {/* Background ambient light */}
-      <div className={cn("absolute -bottom-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20", 
-        isReceivable ? "bg-primary" : "bg-warning"
-      )} />
-
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
           <div className={cn("p-2.5 rounded-xl backdrop-blur-sm border border-white/10 shadow-sm",

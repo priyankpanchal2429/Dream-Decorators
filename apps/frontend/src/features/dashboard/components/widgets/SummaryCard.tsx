@@ -30,12 +30,6 @@ export const SummaryCard: React.FC<SummaryCardProps> = ({
 
   return (
     <div className="glass-panel flex flex-col p-5 rounded-2xl relative overflow-hidden group transition-all duration-300 hover:-translate-y-1 hover:shadow-lg h-full">
-      {/* Background glow effect */}
-      <div className={cn("absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl opacity-20 transition-opacity group-hover:opacity-40", 
-        title.includes('Sales') ? 'bg-primary' : 
-        title.includes('Purchase') ? 'bg-success' : 'bg-danger'
-      )} />
-
       <div className="flex items-center justify-between mb-4 relative z-10">
         <div className="flex items-center gap-3">
           <div className={cn("p-2 rounded-xl backdrop-blur-md border border-white/10 shadow-sm", iconBg)}>

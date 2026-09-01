@@ -25,9 +25,6 @@ const actions: QuickActionProps[] = [
 export const QuickActionsWidget: React.FC = () => {
   return (
     <div className="glass-panel p-6 rounded-3xl h-full flex flex-col relative overflow-hidden group">
-      {/* Background ambient light */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full rounded-full blur-3xl opacity-10 bg-primary pointer-events-none transition-opacity duration-500 group-hover:opacity-20" />
-
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl backdrop-blur-sm bg-primary/10 border border-primary/20 shadow-sm text-primary">

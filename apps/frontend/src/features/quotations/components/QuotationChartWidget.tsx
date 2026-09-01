@@ -27,9 +27,6 @@ const chartData = [
 export const QuotationChartWidget: React.FC = () => {
   return (
     <div className="glass-panel p-6 rounded-3xl h-full flex flex-col relative overflow-hidden group">
-      {/* Glow */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-
       <div className="flex items-center justify-between mb-6 relative z-10">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl backdrop-blur-sm bg-indigo-500/10 border border-indigo-500/20 shadow-sm text-indigo-500">

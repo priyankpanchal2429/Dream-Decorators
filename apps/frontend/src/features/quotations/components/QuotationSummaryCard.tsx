@@ -37,9 +37,6 @@ export const QuotationSummaryCard: React.FC<QuotationSummaryCardProps> = ({
 
   return (
     <div className="glass-panel p-6 rounded-3xl space-y-6 relative overflow-hidden group">
-      {/* Ambient Glow */}
-      <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-
       <div className="flex items-center gap-3 pb-4 border-b border-borderClr/30 relative z-10">
         <div className="p-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary">
           <Calculator className="h-5 w-5" />
