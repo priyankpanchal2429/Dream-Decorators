@@ -403,7 +403,7 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                 </div>
                 <div>
                   <h3 className="text-xs font-bold text-txtPrimary">Product Items</h3>
-                  <p className="text-[10px] text-txtSecondary">Manage products, item notes, HSN/SAC codes, UOM, and GST tax calculations</p>
+                  <p className="text-[10px] text-txtSecondary">Manage products, item notes, UOM, and GST tax calculations</p>
                 </div>
               </div>
 
@@ -438,20 +438,19 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
               </div>
             </div>
 
-        {/* 10 Column Table matching Reference Layout */}
+        {/* 9 Column Table matching Clean Quotation Layout */}
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[900px] table-fixed">
             <thead>
               <tr className="bg-hoverBg/40 border-b border-borderClr/30 text-[10px] font-bold text-txtSecondary uppercase tracking-wider">
                 <th className="px-2 py-3 text-center w-[3%]">SR.</th>
-                <th className="px-2 py-3 text-left w-[42%]">PRODUCT / OTHER CHARGES</th>
-                <th className="px-2 py-3 text-center w-[9%]">HSN/SAC CODE</th>
-                <th className="px-2 py-3 text-center w-[7%]">QTY.</th>
-                <th className="px-2 py-3 text-center w-[7%]">UOM</th>
-                <th className="px-2 py-3 text-right w-[8%]">PRICE (₹)</th>
-                <th className="px-2 py-3 text-right w-[6%]">DISCOUNT</th>
-                <th className="px-2 py-3 text-right w-[7%]">CGST + SGST</th>
-                <th className="px-2 py-3 text-right w-[11%]">
+                <th className="px-2 py-3 text-left w-[48%]">PRODUCT / OTHER CHARGES</th>
+                <th className="px-2 py-3 text-center w-[8%]">QTY.</th>
+                <th className="px-2 py-3 text-center w-[8%]">UOM</th>
+                <th className="px-2 py-3 text-right w-[9%]">PRICE (₹)</th>
+                <th className="px-2 py-3 text-right w-[7%]">DISCOUNT</th>
+                <th className="px-2 py-3 text-right w-[8%]">CGST + SGST</th>
+                <th className="px-2 py-3 text-right w-[14%]">
                   <span className="text-xs font-black text-primary uppercase tracking-wide">TOTAL (₹)</span>
                 </th>
                 <th className="px-2 py-3 text-center w-[3%]"></th>
@@ -474,12 +473,11 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                     </td>
 
                     {/* PRODUCT AUTOCOMPLETE + ITEM NOTES */}
-                    <td className="px-2 py-3 space-y-2 w-[42%] align-top">
+                    <td className="px-2 py-3 space-y-2 w-[48%] align-top">
                       <ProductAutocomplete
                         value={item.description}
                         onChange={(val) => onUpdateItem(item.id, 'description', val)}
                         onSelectProduct={(prod) => {
-                          if (prod.hsnCode) onUpdateItem(item.id, 'hsnCode', prod.hsnCode);
                           if (prod.uom) onUpdateItem(item.id, 'uom', prod.uom);
                           if (prod.unitPrice) onUpdateItem(item.id, 'unitPrice', prod.unitPrice);
                         }}
@@ -493,19 +491,8 @@ export const CreateQuotationForm: React.FC<CreateQuotationFormProps> = ({
                       />
                     </td>
 
-                    {/* HSN/SAC CODE */}
-                    <td className="px-2 py-3 align-top w-[9%]">
-                      <input
-                        type="text"
-                        placeholder="HSN/SAC"
-                        value={item.hsnCode || ''}
-                        onChange={(e) => onUpdateItem(item.id, 'hsnCode', e.target.value)}
-                        className="w-full h-10 px-2 py-2 text-xs text-center rounded-xl bg-hoverBg/60 border border-borderClr/30 text-txtPrimary font-medium focus:outline-none focus:border-primary/50 transition-all"
-                      />
-                    </td>
-
                     {/* DEDICATED QTY COLUMN */}
-                    <td className="px-2 py-3 align-top w-[7%]">
+                    <td className="px-2 py-3 align-top w-[8%]">
                       <input
                         type="number"
                         min={1}

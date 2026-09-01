@@ -139,14 +139,13 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
           </div>
         </div>
 
-        {/* Itemized Line Items Table (9 Requested Columns) */}
+        {/* Itemized Line Items Table (8 Columns) */}
         <div className="overflow-hidden border border-zinc-200 rounded-lg my-4">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-zinc-100 text-zinc-700 text-[8px] font-bold uppercase tracking-wider border-b border-zinc-200">
                 <th className="px-2 py-2 text-center w-7">SR.</th>
                 <th className="px-3 py-2">PRODUCT / OTHER CHARGES</th>
-                <th className="px-2 py-2 text-center w-20">HSN/SAC CODE</th>
                 <th className="px-2 py-2 text-center w-12">QTY.</th>
                 <th className="px-2 py-2 text-center w-12">UOM</th>
                 <th className="px-2 py-2 text-right w-20">PRICE (₹)</th>
@@ -170,7 +169,6 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
                       <span className="font-bold text-zinc-900 block">{item.description || 'Custom Interior Furniture'}</span>
                       <span className="text-[7.5px] text-zinc-500 italic block">{item.itemNotes || 'Teakwood / Velvet • 1 Year Warranty'}</span>
                     </td>
-                    <td className="px-2 py-2 text-center text-zinc-500 font-medium">{item.hsnCode || '94036000'}</td>
                     <td className="px-2 py-2 text-center font-bold text-zinc-800">{qty}</td>
                     <td className="px-2 py-2 text-center font-bold text-zinc-600">{item.uom || 'NOS'}</td>
                     <td className="px-2 py-2 text-right font-medium text-zinc-700">{formatINR(price)}</td>
@@ -183,7 +181,7 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
             </tbody>
             <tfoot className="bg-zinc-50 font-semibold text-[8.5px] border-t border-zinc-200">
               <tr>
-                <td colSpan={3} className="px-3 py-1.5 text-right uppercase font-bold text-zinc-500">Total Quantity:</td>
+                <td colSpan={2} className="px-3 py-1.5 text-right uppercase font-bold text-zinc-500">Total Quantity:</td>
                 <td colSpan={2} className="px-2 py-1.5 text-center font-bold text-zinc-900 whitespace-nowrap">{totalQty} NOS</td>
                 <td colSpan={4} className="px-3 py-1.5 text-right font-bold text-primary text-xs">
                   {formatINR(subtotal)}
@@ -230,38 +228,6 @@ export const QuotationPrintDocument: React.FC<QuotationPrintDocumentProps> = ({
               <span className="text-primary font-black">{formatINR(grandTotal)}</span>
             </div>
           </div>
-        </div>
-
-        {/* Minimal HSN / SAC Tax Summary Grid */}
-        <div className="border border-zinc-200 rounded-lg mb-3 overflow-hidden text-[8px]">
-          <table className="w-full text-center border-collapse">
-            <thead>
-              <tr className="bg-zinc-100 text-zinc-700 font-bold uppercase border-b border-zinc-200">
-                <th rowSpan={2} className="p-1 border-r border-zinc-200">HSN / SAC</th>
-                <th rowSpan={2} className="p-1 border-r border-zinc-200">Taxable Value</th>
-                <th colSpan={2} className="p-1 border-r border-zinc-200">CGST</th>
-                <th colSpan={2} className="p-1 border-r border-zinc-200">SGST</th>
-                <th rowSpan={2} className="p-1">Total Tax</th>
-              </tr>
-              <tr className="bg-zinc-50 text-zinc-600 font-bold border-t border-zinc-200">
-                <th className="p-1 border-r border-zinc-200">%</th>
-                <th className="p-1 border-r border-zinc-200">Amount</th>
-                <th className="p-1 border-r border-zinc-200">%</th>
-                <th className="p-1 border-r border-zinc-200">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-200 font-medium">
-              <tr>
-                <td className="p-1 border-r border-zinc-200 font-bold">94036000</td>
-                <td className="p-1 border-r border-zinc-200 font-bold">{formatINR(subtotal)}</td>
-                <td className="p-1 border-r border-zinc-200">9.00</td>
-                <td className="p-1 border-r border-zinc-200">{formatINR(cgstAmount)}</td>
-                <td className="p-1 border-r border-zinc-200">9.00</td>
-                <td className="p-1 border-r border-zinc-200">{formatINR(sgstAmount)}</td>
-                <td className="p-1 font-bold text-zinc-900">{formatINR(taxAmount)}</td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
 
