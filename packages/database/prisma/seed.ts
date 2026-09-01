@@ -324,29 +324,26 @@ async function main() {
       taxAmount: 10200.0,
       discountAmount: 5000.0,
       grandTotal: 90200.0,
-      notes: 'Premium master bedroom curtain and sheer setup.',
-      terms: '50% advance along with order confirmation. Balance upon installation completion.',
+      notes: 'Premium master bedroom curtain and sheer setup. 50% advance confirmed.',
       items: {
         create: [
           {
             productId: createdProducts[0].id,
             description: 'Royal Velvet Blackout Curtain Fabric (Pleated)',
             quantity: 50.0,
-            unitRate: 850.0,
-            taxPercent: 12.0,
+            unitPrice: 850.0,
+            taxRate: 12.0,
             taxAmount: 5100.0,
-            discountPercent: 5.0,
-            totalAmount: 45475.0,
+            totalPrice: 47600.0,
           },
           {
             productId: createdProducts[1].id,
             description: 'Luxury Linen Translucent Sheer Curtain',
             quantity: 45.0,
-            unitRate: 550.0,
-            taxPercent: 12.0,
+            unitPrice: 550.0,
+            taxRate: 12.0,
             taxAmount: 2970.0,
-            discountPercent: 0.0,
-            totalAmount: 27720.0,
+            totalPrice: 27720.0,
           },
         ],
       },
@@ -371,20 +368,16 @@ async function main() {
       discountAmount: 5000.0,
       grandTotal: 90200.0,
       paidAmount: 50000.0,
-      balanceAmount: 40200.0,
-      notes: 'Delivered and installed at Bodakdev site.',
-      terms: 'Payment due within 15 days of invoice date.',
       items: {
         create: [
           {
             productId: createdProducts[0].id,
             description: 'Royal Velvet Blackout Curtain Fabric (Pleated)',
             quantity: 50.0,
-            unitRate: 850.0,
-            taxPercent: 12.0,
+            unitPrice: 850.0,
+            taxRate: 12.0,
             taxAmount: 5100.0,
-            discountPercent: 5.0,
-            totalAmount: 45475.0,
+            totalPrice: 47600.0,
           },
         ],
       },
@@ -395,21 +388,19 @@ async function main() {
   await prisma.deliveryChallan.create({
     data: {
       challanNumber: 'DC-2026-0001',
-      date: new Date('2026-08-20T00:00:00Z'),
+      dispatchDate: new Date('2026-08-20T00:00:00Z'),
       partyId: customer1.id,
       warehouseId: mainWarehouse.id,
       financialYearId: fy2026.id,
       salesInvoiceId: invoice.id,
       createdById: superAdmin.id,
       status: DocumentStatus.FULFILLED,
-      dispatchDetails: 'Dispatched via In-House Delivery Van (GJ-01-XX-9876)',
-      notes: 'Customer signed POD received on site.',
+      remarks: 'Dispatched via In-House Delivery Van (GJ-01-XX-9876)',
       items: {
         create: [
           {
             productId: createdProducts[0].id,
             quantity: 50.0,
-            description: 'Velvet Curtain Fabric Stitched Sets',
           },
         ],
       },
@@ -418,18 +409,17 @@ async function main() {
 
   // 10. Seed Payment Receipt
   console.log('💳 Seeding Payment Receipts & Allocations...');
-  const payment = await prisma.payment.create({
+  await prisma.payment.create({
     data: {
-      voucherNumber: 'PAY-REC-2026-0001',
-      date: new Date('2026-08-20T00:00:00Z'),
-      paymentType: 'RECEIPT',
+      paymentNumber: 'PAY-2026-0001',
+      paymentDate: new Date('2026-08-20T00:00:00Z'),
       partyId: customer1.id,
       financialYearId: fy2026.id,
       createdById: superAdmin.id,
       amount: 50000.0,
       paymentMode: PaymentMode.UPI,
       referenceNo: 'UPI/623309182390/HDFC',
-      notes: 'Advance 50k payment received via UPI',
+      remarks: 'Advance 50k payment received via UPI',
       allocations: {
         create: [
           {
