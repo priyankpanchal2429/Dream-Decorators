@@ -58,7 +58,7 @@ export const NotificationMenu: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-cardBg border border-borderClr shadow-2xl p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-cardBg border border-borderClr shadow-2xl p-4 z-[100] animate-in fade-in slide-in-from-top-2 duration-200 backdrop-blur-xl">
           <div className="flex items-center justify-between pb-3 border-b border-borderClr/40">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-txtPrimary">Notifications</span>

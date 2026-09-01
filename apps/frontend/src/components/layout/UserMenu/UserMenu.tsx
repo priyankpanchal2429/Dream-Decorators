@@ -56,7 +56,7 @@ export const UserMenu: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-cardBg border border-borderClr shadow-xl py-1.5 z-50 animate-fade-in backdrop-blur-lg">
+        <div className="absolute right-0 mt-2 w-56 rounded-xl bg-cardBg border border-borderClr shadow-xl py-1.5 z-[100] animate-fade-in backdrop-blur-lg">
           <div className="px-3.5 py-2.5 border-b border-borderClr mb-1 bg-black/[0.02] dark:bg-white/[0.02]">
             <div className="flex items-center gap-1.5 mb-0.5">
               <ShieldCheck className="w-3.5 h-3.5 text-amber-500" />

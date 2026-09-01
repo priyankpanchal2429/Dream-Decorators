@@ -33,7 +33,7 @@ export const Topbar: React.FC<TopbarProps> = ({ onToggleMobileSidebar }) => {
   };
 
   return (
-    <header className="h-topbar border-b border-borderClr bg-cardBg px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+    <header className="h-topbar border-b border-borderClr bg-cardBg px-6 flex items-center justify-between sticky top-0 z-40 shadow-xs">
       <div className="flex items-center gap-4">
         <button
           onClick={onToggleMobileSidebar}
