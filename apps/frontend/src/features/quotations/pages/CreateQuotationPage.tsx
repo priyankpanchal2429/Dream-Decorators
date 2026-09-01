@@ -58,31 +58,19 @@ export default function CreateQuotationPage() {
     return `DD-${num}/${fy}`;
   }, [quotationNumber, financialYear]);
 
-  // Initial starter line items
+  // Clean starter line item for real quotation creation
   const [items, setItems] = useState<QuotationItem[]>([
     {
       id: '1',
-      description: 'Living Room Main Curtain Fabric (Pleated)',
-      itemNotes: 'Window Curtains',
-      hsnCode: '6303',
-      quantity: 10.5,
+      description: '',
+      itemNotes: '',
+      hsnCode: '',
+      quantity: 1,
       uom: 'MTR',
-      unitPrice: 850,
+      unitPrice: 0,
       discount: 0,
       taxPercent: 12,
-      total: 9996,
-    },
-    {
-      id: '2',
-      description: 'Living Room Translucent Sheer Curtain',
-      itemNotes: 'Window Curtains',
-      hsnCode: '6303',
-      quantity: 10.5,
-      uom: 'MTR',
-      unitPrice: 550,
-      discount: 0,
-      taxPercent: 12,
-      total: 6468,
+      total: 0,
     },
   ]);
 

@@ -22,33 +22,8 @@ interface NotificationState {
 
 const STORAGE_KEY = 'dd-notifications';
 
-/** Seed data shown only on first-ever visit (when localStorage has no entry). */
-const SEED_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: 'notif-1',
-    title: 'Invoice INV-2026-001 Approved',
-    message: 'Client Aarav Sharma cleared outstanding balance of ₹42,000.',
-    timestamp: '10 mins ago',
-    type: 'success',
-    read: false,
-  },
-  {
-    id: 'notif-2',
-    title: 'Low Stock Alert',
-    message: 'Teak Wood Chair Frame is below reorder level (8 units remaining).',
-    timestamp: '25 mins ago',
-    type: 'warning',
-    read: false,
-  },
-  {
-    id: 'notif-3',
-    title: 'New Vendor Registered',
-    message: 'Royal Woodcrafts added to vendor directory.',
-    timestamp: '1 hour ago',
-    type: 'info',
-    read: false,
-  },
-];
+/** Clean initial state for production */
+const SEED_NOTIFICATIONS: NotificationItem[] = [];
 
 function loadFromStorage(): NotificationItem[] {
   if (typeof window === 'undefined') return SEED_NOTIFICATIONS;
